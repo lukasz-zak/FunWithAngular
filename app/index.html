@@ -13,9 +13,10 @@
     <!-- build:css styles/main.css -->
     <link rel="stylesheet" href="styles/bootstrap.css">
     <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="components/angular-ui/build/angular-ui.css">
     <!-- endbuild -->
   </head>
-  <body ng-app="[JS]AngularTestApp">
+  <body ng-app="FunWithAngular">
     <!--[if lt IE 7]>
       <p class="chromeframe">You are using an outdated browser. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
     <![endif]-->
@@ -28,20 +29,17 @@
     <!-- Add your site or application content here -->
     <div class="container" ng-view></div>
 
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.9.0/jquery.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
     <script src="components/angular/angular.js"></script>
-    <script src="components/angular-cookies/angular-cookies.js"></script>
 
     <!-- build:js scripts/scripts.js -->
     <script src="scripts/app.js"></script>
     <script src="scripts/controllers/main.js"></script>
+    <script type="text/javascript" src="components/angular-ui/build/angular-ui.js"></script>
+    <script type="text/javascript" src="components/angular-ui/modules/directives/sortable/sortable.js"></script>
+    <script type="text/javascript" src="components/angular-local-storage/angular-local-storage.js"></script>
     <!-- endbuild -->
 
-    <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
-    <script>
-      var _gaq=[['_setAccount','UA-XXXXX-X'],['_trackPageview']];
-      (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
-      g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
-      s.parentNode.insertBefore(g,s)}(document,'script'));
-    </script>
   </body>
 </html>

@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('[JS]AngularTestApp', [])
+angular.module('FunWithAngular', ['ui', 'LocalStorageModule'])
   .config(function ($routeProvider) {
     $routeProvider
       .when('/', {

@@ -1,10 +1,16 @@
-<div class="hero-unit">
-  <h1>'Allo, 'Allo!</h1>
-  <p>You now have</p>
-  <ul>
-      <li ng-repeat="thing in awesomeThings">{{thing}}</li>
-  </ul>
-  <p>installed.</p>
-  <h3>Enjoy coding! - Yeoman</h3>
-  
+<div class='hero-unit'>
+    <h2>My Todos</h2>
+    <div ui-sortable="sortableOptions">
+        <p ng-repeat="todo in todos">
+            <input type='text' ng-model='todo'/>
+            <a class='btn btn-small btn-danger' ng-click='removeItem($index)'>X</a>
+        </p>
+    </div>
+    
+    <form ng-submit='addTodo()'>
+        <div class='controls form-inline'>
+            <input type="text" ng-model='todo'>
+            <input class='btn btn-primary' type="submit" value='Save'>
+        </div>
+    </form>
 </div>
