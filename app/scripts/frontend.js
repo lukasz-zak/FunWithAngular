@@ -1,4 +1,4 @@
-var socket = io.connect('http://simple-chat.w00cash.c9.io/');
+//var socket = io.connect('http://localhost:9000');
 var hidden = 'hidden';
 var myUserName;
 

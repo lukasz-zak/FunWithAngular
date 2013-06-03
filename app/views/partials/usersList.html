@@ -1,0 +1,14 @@
+<nav id="usersList">
+	<span class="usersAmount">
+		<i class="icon-user"></i>
+		Total users:&nbsp;<a class="badge badge-success">{{usersAmount}}</a>
+	</span>
+
+	<span ng-repeat="user in usersList" id="user-{{user.userName}}" class="user" ng:class="checkIfMe($index)">
+		<i class="icon-chevron-right"></i>
+		{{user.userName}}
+		<button class="hide btn btn-mini" type="button">
+			<i class="icon-comment"></i>
+		</button>
+	</span>
+</nav>	            

@@ -3,7 +3,7 @@
   <div class="row-fluid">
     <div class="span7 offset2 fade in">
       <h1>Chat</h1>
-      <h5 class="nickName"> <strong class="text-success"></strong></h5>
+      <h5 class="nickName"> <strong class="text-success">{{userName}}</strong></h5>
       <div id="alertsDiv"></div>
       <form class="form-inline">
         <label for="userName">User name:&nbsp;</label>
@@ -24,9 +24,8 @@
         </div>
       </div>
     </div>
-    <div class="span2">                     
-      <nav id="usersList"><span class="usersAmount"><i class="icon-user"></i>  Total users:&nbsp;<a class="badge badge-success"></a></span></nav>
-    </div>
+    
+    <div class="span2" ng-include src="usersListPartial"></div>
   </div>
   <div class="row-fluid">
     <footer class="span7 offset2">

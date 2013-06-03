@@ -13,6 +13,7 @@
     <!-- build:css styles/main.css -->
     <link rel="stylesheet" href="styles/bootstrap.css">
     <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/chat.css">
     <link rel="stylesheet" href="components/angular-ui/build/angular-ui.css">
     <!-- endbuild -->
   </head>
@@ -33,18 +34,20 @@
     <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
 
     <script src="components/angular/angular.js"></script>
-    <script src="/socket.io/socket.io.js"></script>
+    <script src="http://localhost:9001/socket.io/socket.io.js"></script>
     <script src="components/angular-socket-io/socket.js"></script>
+    <script src="components/bootstrap/js/bootstrap-alert.js"></script>
 
     <!-- build:js scripts/scripts.js -->
     <script src="scripts/app.js"></script>
+    <script src="scripts/services.js"></script>
     <script src="scripts/controllers/main.js"></script>
+    <script src="scripts/controllers/chat.js"></script>
     <script type="text/javascript" src="components/angular-ui/build/angular-ui.js"></script>
     <script type="text/javascript" src="components/angular-ui/modules/directives/sortable/sortable.js"></script>
     <script type="text/javascript" src="components/angular-local-storage/angular-local-storage.js"></script>
-    <script src="scripts/controllers/chat.js"></script>
 
-    <!--  <script src="/scripts/frontend.js"></script> -->
+    <!-- <script src="/scripts/frontend.js"></script> -->
 
     <!-- endbuild -->
 

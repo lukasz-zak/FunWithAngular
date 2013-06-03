@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('FunWithAngular', ['ui', 'LocalStorageModule', 'btford.socket-io'])
+angular.module('FunWithAngular', ['ui', 'LocalStorageModule', 'btford.socket-io', 'FunWithAngular.services'])
   .config(function ($routeProvider) {
     $routeProvider
       .when('/', {
