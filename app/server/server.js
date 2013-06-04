@@ -4,26 +4,26 @@ var http = require('http'),
 
 // Reducing socket.io log (debug) statements
 io.set('log level', 2);
-  
-var clients = {};
-var userColors = {};
-var socketsOfClients = {};
+
+var uDB = require('./modules/users.js');
+var usersDB = new uDB();
 
 io.sockets.on('connection', function(socket) {
-    console.log("socketID: ", socket.id);
+    console.log("========================================");
     
     socket.on('set_username', function(userName) {
         console.info('set username:', userName);
-        // Is this an existing user name?
-        if (clients[userName] === undefined) {
-            // Does not exist ... so, proceed
-            clients[userName] = socket.id;
-            socketsOfClients[socket.id] = userName;
-            userColors[userName] = get_random_color();
+        console.info('for id:', socket.id);
+        console.log("========================================");
+
+        if (usersDB.nameNotExist(userName)) {
+            console.log('//userNotExist');
+
+            usersDB.addNewUser(socket.id, userName);
             userNameAvailable(socket.id, userName);
             userJoined(userName);
         }
-        else if (clients[userName] === socket.id) {
+        else if (usersDB.socketIdExist(socket.id)) {
             socketsOfClients[socket.id] = userName;
             userNameAvailable(socket.id, userName);
             userJoined(userName);
@@ -35,8 +35,8 @@ io.sockets.on('connection', function(socket) {
     socket.on('message', function(msg) {
         var srcUser;
         if (msg.inferSrcUser) {
-            // Infer user name based on the socket id
-            srcUser = socketsOfClients[socket.id];
+            srcUser = usersDB.findUserById(socket.id);
+            console.log(srcUser);
         }
         else {
             srcUser = msg.source;
@@ -48,7 +48,7 @@ io.sockets.on('connection', function(socket) {
                 "source": srcUser,
                 "message": msg.message,
                 "target": msg.target,
-                "userColor" : userColors[srcUser]
+                "userColor" : srcUser.color
             });
         }
         else {
@@ -63,39 +63,30 @@ io.sockets.on('connection', function(socket) {
         }
     })
     socket.on('disconnect', function() {
-        var uName = socketsOfClients[socket.id];
-        delete socketsOfClients[socket.id];
-        delete clients[uName];
+        console.log('//userDisconnect')
+        var usr = usersDB.findUserById(socket.id);
+        usersDB.removeUser(socket.id);
 
-        // relay this message to all the clients
-        userLeft(uName);
+        userLeft(usr.userName);
     })
 })
 
 function userJoined(uName) {
-    console.log('userJoined', uName)
-    Object.keys(socketsOfClients).forEach(function(sId) {
-        io.sockets.sockets[sId].emit('userJoined', {
+    console.log('//userJoined')
+    usersDB.getList().forEach(function(user){
+        io.sockets.sockets[user.id].emit('userJoined', {
             "userName": uName,
-            "amount": Object.keys(clients).length,
-            "userColor": userColors[uName]
+            "amount": usersDB.getList().length,
+            "userColor": user.color
         });
-    })
-}
-
-function get_random_color() {
-    var letters = '0123456789ABCD'.split('');
-    var color = '#';
-    for (var i = 0; i < 6; i++ ) {
-        color += letters[Math.round(Math.random() * (letters.length - 1))];
-    }
-    return color;
+    });
 }
 
 function userLeft(uName) {
+    console.log('//userLeft')
     io.sockets.emit('userLeft', {
         "userName": uName,
-        "amount": Object.keys(clients).length
+        "amount": usersDB.getList().length
     });
 }
 
@@ -105,7 +96,7 @@ function userNameAvailable(sId, uName) {
         console.log('Sending welcome msg to ' + uName + ' at ' + sId);
         io.sockets.sockets[sId].emit('welcome', {
             "userName": uName,
-            "currentUsers": JSON.stringify(Object.keys(clients))
+            "currentUsers": JSON.stringify(usersDB.getList())
         });
 
     }, 500);

@@ -180,7 +180,7 @@ angular.module('FunWithAngular')
 	    span.addClass('allMsg').css('color', msg.userColor);
 	    
 	    var b = $("<b></b>");
-	    var user = b.append(" " + msg.source);
+	    var user = b.append(" " + msg.source.userName);
 	    
 	    var timeTag = $("<code></code>");
 	    timeTag.append(getMsgTime());
@@ -283,8 +283,8 @@ angular.module('FunWithAngular')
 
 	function setCurrentUsers(usersStr) {
 	    Users.removeAll();
-	    JSON.parse(usersStr).forEach(function(name) {
-	        appendNewUser(name);});
+	    JSON.parse(usersStr).forEach(function(usr) {
+	        appendNewUser(usr.userName);});
 	    enablePrivMsg();
 	}
 
