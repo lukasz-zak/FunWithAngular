@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('FunWithAngular')
-  .controller('ChatCtrl', function ($scope, socket, Users) {
+  .controller('ChatCtrl', function ($scope, $rootScope, socket, Users, $location) {
 
   	//Socket listeneres
   	//=============================================
@@ -34,7 +34,6 @@ angular.module('FunWithAngular')
         setFeedback("Username available. You can begin chatting.", 'success');
         
         setCurrentUsers(msg.currentUsers);
-        enableMsgInput(true);
         enableUsernameField(false);
     });
 
@@ -48,6 +47,7 @@ angular.module('FunWithAngular')
     $scope.usersAmount = 0;
     $scope.partialsUrl = '/views/partials/';
     $scope.usersListPartial = $scope.partialsUrl + 'usersList.html';
+    $scope.loginFormValid = 'disabled';
 
     //to check if user on list is me or not
     $scope.checkIfMe = function(index){
@@ -59,6 +59,32 @@ angular.module('FunWithAngular')
 
     $scope.$watch(function(){
     	$scope.usersList = Users.getUsersList();
+    });
+
+    $scope.toggleLoginBtn = function(input){
+    	if(input !== undefined && input.length > 0 )
+    		$scope.loginFormValid = ''
+    	else
+    		$scope.loginFormValid = 'disabled';
+    }
+
+    $scope.sendForm = function(){
+    	console.log(this.loginInput);
+    	setUsername(this.loginInput);
+    	checkNotificationPermission();
+    	$location.path('/chat');
+    }
+
+    $rootScope.$watch(function () {
+    	return $location.path();
+    }, function (newLocation, oldLocation) {
+        if(newLocation === '/' && oldLocation ==='/chat') {
+            alert('Why did you use history back?');
+        }
+        if(newLocation === '/chat'){
+        	console.log('######');
+        	socket.emit('disconnect');
+        }
     });
 
 
@@ -139,11 +165,6 @@ angular.module('FunWithAngular')
 	    });
 	}
 
-	function enableMsgInput(enable) {
-	    $('input.msgInput').prop('disabled', !enable);
-	    enablePrivMsg();
-	}
-
 	function enableUsernameField(enable) {
 	    $('input#userName').prop('disabled', !enable);
 	    if(enable)
@@ -173,7 +194,7 @@ angular.module('FunWithAngular')
 	}
 
 	function appendNewMessage(msg) {
-	    window.document.title = getMsgTime() + " " + msg.source;
+	    window.document.title = getMsgTime() + " " + msg.source.userName;
 	    
 	    var html
 	    var span = $("<span></span>");
@@ -262,10 +283,10 @@ angular.module('FunWithAngular')
 	    $scope.usersAmount = amount;
 	}
 
-	function setUsername() {
-	    myUserName = $('input#userName').val();
-	    $('button#startChat').text('Please wait...');
-	    socket.emit('set_username', $('input#userName').val());
+	function setUsername(usrName) {
+	    //myUserName = $('input#userName').val();
+	    //$('button#startChat').text('Please wait...');
+	    socket.emit('set_username', usrName);
 	}
 
 	function sendMessage(assignedID) {
@@ -287,35 +308,9 @@ angular.module('FunWithAngular')
 	        appendNewUser(usr.userName);});
 	    enablePrivMsg();
 	}
-
-	function inputEnterDetection(assignedID){
-	    if(assignedID === undefined)
-	        assignedID = '';
-	    $('input'+assignedID+'.msgInput').keypress(function(e) {
-	        if (e.keyCode == 13) {
-	            sendMessage(assignedID);
-	            e.stopPropagation();
-	            e.stopped = true;
-	            e.preventDefault();
-	        }
-	    });
-	}
-
-	    enableMsgInput(false);
 	    addAudioToPage();
 	    isWindowIsActive();
 	    
 	    //Bootrap scripts
 	    $(".alert").alert();
-
-	    $('#startChat').on('click', function(e){
-	        e.preventDefault();
-	        setUsername();
-	    });
-	    
-	    $('#userName').on('click', function(){
-	       checkNotificationPermission();
-	    });
-
-	    inputEnterDetection();
   });

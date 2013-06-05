@@ -5,12 +5,16 @@ angular.module('FunWithAngular',
   .config(function ($routeProvider) {
     $routeProvider
       .when('/', {
-        templateUrl: 'views/main.html',
-        controller: 'MainCtrl'
+        templateUrl: 'views/chatLogin.html',
+        controller: 'ChatCtrl'
       })
       .when('/chat', {
         templateUrl: 'views/chatMain.html',
         controller: 'ChatCtrl'
+      })
+      .when('/main',{
+        templateUrl: 'views/main.html',
+        controller: 'MainCtrl'
       })
       .otherwise({
         redirectTo: '/'

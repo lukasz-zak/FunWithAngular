@@ -60,4 +60,4 @@ var UsersDB = function () {
 
 };
 
-module.exports = UsersDB;
+module.exports = new UsersDB();
