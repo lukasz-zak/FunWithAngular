@@ -1,12 +1,10 @@
 var http    = require('http'),
     fs      = require('fs'),
-    usersDB = require('./modules/users.js');
+    usersDB = require('./modules/users.js'),
     io      = require('socket.io').listen(9001); // for npm, otherwise use require('./path/to/socket.io') 
 
 // Reducing socket.io log (debug) statements
 io.set('log level', 2);
-
-var 
 
 io.sockets.on('connection', function(socket) {
     console.log("========================================");
