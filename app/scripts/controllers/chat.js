@@ -272,7 +272,7 @@ angular.module('FunWithAngular')
     //Bootrap scripts
     $(".alert").alert();
   })
-.controller('chatLoginCtrl', function($q, $scope, $location, SocketConn, localStorageService){
+.controller('chatLoginCtrl', function($scope, $location, SocketConn, localStorageService){
 	var usrDataFromLS = JSON.parse(localStorageService.get('user'));
 	console.log(usrDataFromLS);
 	if(usrDataFromLS !== null){
@@ -289,37 +289,10 @@ angular.module('FunWithAngular')
 	    		$scope.loginFormValid = 'disabled';
 	    }
 
-	    var defer = $q.defer();
-
-	    var addNewUser = function (loginInput) {
-	    	console.log(defer);
-	    	defer.promise
-	    		.then(function () {
-	    			var result = SocketConn.addNewUser(loginInput);
-
-	    			return defer.resolve(result);
-	    		})
-	    		.then(function(result) {
-	    			console.log('promise');
-	    			
-			    	console.log("@@@@@" + result);
-			    	if(result){
-			    		$location.url('/chat');
-			    		console.log('resolve')
-			    		defer.resolve();
-			    	}else{
-			    		console.log('reject')
-			    		defer.reject();
-			    	}
-			    }, function (err) {
-			    	console.log(err);
-			    });
-
-	    	defer.resolve();
-	    }
-
 	    $scope.sendForm = function(){
-	    	addNewUser(this.loginInput);
+	    	//tutaj zwracany jest promise z dodawania usera:
+	    	SocketConn.addNewUser(this.loginInput);
+	    	$location.path('/chat');
 	    }
 	}
     

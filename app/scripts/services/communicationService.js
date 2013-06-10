@@ -74,15 +74,27 @@ angular.module('FunWithAngular.services')
 		        return getCookies()[name];
 		    },
 
-		    addNewUser: function(usrName){
-		    	console.log($q);
- 				var defer = $q.defer();
- 				$timeout(function () {
- 					defer.resolve();
- 				},3000);
+			addNewUser: function(usrName){
+				console.log('emit add new user');
 
- 				return defer.promise;
- 			},
+				var result = {
+					userName: '',
+					success: false
+				},
+				defer = $q.defer();
+
+				socket.emit('addNewUser', usrName, function(response){
+					if (response) {
+						result.success = true;
+						result.userName = usrName;
+
+						defer.resolve(result);
+					} else
+						defer.reject();
+
+					return defer.promise;
+				});
+			},
 
  			// addNewUser: function(usrName){
  			// 	var resp;

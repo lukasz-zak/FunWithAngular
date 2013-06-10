@@ -14,12 +14,7 @@ angular.module('FunWithAngular',
       })
       .when('/chat', {
         templateUrl: 'views/chatMain.html',
-        controller: 'ChatCtrl',
-        resolve : {
-          app :  function (SocketConn) {
-            return SocketConn.addNewUser('name');
-          }
-        }
+        controller: 'ChatCtrl'
       })
       .when('/main',{
         templateUrl: 'views/main.html',
