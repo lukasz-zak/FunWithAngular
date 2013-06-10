@@ -1,92 +1,63 @@
 'use strict';
 
 angular.module('FunWithAngular')
-  .controller('ChatCtrl', function ($scope, $rootScope, socket, Users, $location) {
+  .controller('ChatCtrl', function ($scope, $rootScope, SocketConn, Users, $location) {
 
-  	//Socket listeneres
-  	//=============================================
-
-  	socket.on('disconnect', function(){
-	    console.log('disconnected !!')
-	    if(myUserName && myUserName.length > 0) {
-	        socket.emit('set_username', myUserName);
-	    }
-	});
-
-	socket.on('userJoined', function(msg) {
-        appendNewUser(msg.userName);
-        setUsersAmount(msg.amount);
-    });
-
-    socket.on('userLeft', function(msg) {
-        handleUserLeft(msg);
-    });
-
-    socket.on('message', function(msg) {
-        appendNewMessage(msg);
-    });
-
-    socket.on('welcome', function(msg) {
-        $scope.userName = "Hello " + msg.userName;
-        $('form').hide();
-        $('.msgWindow').removeClass('hidden');
-        
-        setFeedback("Username available. You can begin chatting.", 'success');
-        
-        setCurrentUsers(msg.currentUsers);
-        enableUsernameField(false);
-    });
-
-    socket.on('error', function(msg) {
-        if (msg.userNameInUse) {
-            setFeedback("Username already in use. Try another name.", 'error');
-            $('button#startChat').text('Start');
-        }
-    });
-
+  	$scope.socketConnService = SocketConn;
     $scope.usersAmount = 0;
     $scope.partialsUrl = '/views/partials/';
     $scope.usersListPartial = $scope.partialsUrl + 'usersList.html';
-    $scope.loginFormValid = 'disabled';
+    $scope.usersList = $scope.socketConnService.getUsers();
+
+
+    if($scope.socketConnService.getMyUsrName()  === undefined){
+    	$location.url('/');
+    }
+
+    $scope.logout = function(e){
+    	e.preventDefault();
+    	console.log('logout');
+    	$location.url('/logout');
+    }
 
     //to check if user on list is me or not
     $scope.checkIfMe = function(index){
-    	if($scope.usersList[index].isItMe == true)
+    	if($scope.usersList[index].userName 
+    		=== $scope.socketConnService.getMyUsrName())
     		return 'itsMe';
     	else
     		return '';
     }
 
-    $scope.$watch(function(){
-    	$scope.usersList = Users.getUsersList();
-    });
+	$scope.$watch('socketConnService.getNewJoiner()', function(newVal, oldVal){
+		console.group('watchingNewJoiner');
+		console.log(newVal, oldVal);
+		if(newVal !== undefined){
+			console.log("watching new joiner: " + newVal);
+			$scope.usersAmount = $scope.socketConnService.getUsersAmount();
+		    var msgForChat = {
+		        "source": {
+		        	'userName': 'SYSTEM'
+		        },
+		        "message": newVal +" join to chat.",
+		        "target": 'All',
+		        "userColor" : 'green'
+	    	};
+			appendNewMessage(msgForChat);
+		}
+		console.groupEnd('watchingNewJoiner');
+    }, true);
 
-    $scope.toggleLoginBtn = function(input){
-    	if(input !== undefined && input.length > 0 )
-    		$scope.loginFormValid = ''
-    	else
-    		$scope.loginFormValid = 'disabled';
-    }
-
-    $scope.sendForm = function(){
-    	console.log(this.loginInput);
-    	setUsername(this.loginInput);
-    	checkNotificationPermission();
-    	$location.path('/chat');
-    }
-
-    $rootScope.$watch(function () {
-    	return $location.path();
-    }, function (newLocation, oldLocation) {
-        if(newLocation === '/' && oldLocation ==='/chat') {
-            alert('Why did you use history back?');
-        }
-        if(newLocation === '/chat'){
-        	console.log('######');
-        	socket.emit('disconnect');
-        }
-    });
-
+    $scope.$watch('socketConnService.getUsers()', function(newVal, oldVal){
+    	console.group('watchingGetUsers');
+    	console.log(newVal, oldVal);
+		if(newVal !== undefined){
+			console.log("watching usersList: " + newVal);
+			$scope.usersList = newVal;
+			$scope.usersAmount = newVal.length;
+		}
+		console.groupEnd('watchingGetUsers');
+    }, true);
 
     var hidden = 'hidden';
 	var myUserName;
@@ -127,15 +98,7 @@ angular.module('FunWithAngular')
 	    $('<audio id="chatAudio"><source src="/sounds/notify.ogg" type="audio/ogg"><source src="notify.mp3" type="audio/mpeg"><source src="notify.wav" type="audio/wav"></audio>').appendTo('body');
 	}
 
-	function checkNotificationPermission(){
-	    if(window.webkitNotifications !== undefined){
-	        if (window.webkitNotifications.checkPermission() === 0) { // 0 is PERMISSION_ALLOWED
-	            console.log("webkitNotifications permission not granded");
-	        } else {
-	            window.webkitNotifications.requestPermission();
-	        }
-	    }
-	}
+
 
 	function enablePrivMsg(){
 	    $('#usersList span.user > button').on('click', function(e){
@@ -240,19 +203,6 @@ angular.module('FunWithAngular')
 	    }
 	}
 
-	function appendNewUser(uName) {
-	    var meClass = '';
-	    if(uName === myUserName)
-	        meClass = 'itsMe';
-	    
-	    var newUser = $("<span id='user-"+uName+"' class='user "+meClass+"'>"
-	            + "<i class='icon-chevron-right'></i> "+ uName
-	            + "<button class='hide btn btn-mini' type='button'><i class='icon-comment'></i></button></span>");
-
-	    Users.addNew(uName, uName === myUserName);
-	    checkNotificationPermission();
-	}
-
 	function handleUserLeft(msg) {
 	    Users.removeByName(msg.userName);
 	    var msgForChat = {
@@ -302,15 +252,81 @@ angular.module('FunWithAngular')
 	    $('input.msgInput').val("");
 	}
 
-	function setCurrentUsers(usersStr) {
-	    Users.removeAll();
-	    JSON.parse(usersStr).forEach(function(usr) {
-	        appendNewUser(usr.userName);});
-	    enablePrivMsg();
+	function inputEnterDetection(assignedID){
+      if(assignedID === undefined)
+          assignedID = '';
+      $('input'+assignedID+'.msgInput').keypress(function(e) {
+          if (e.keyCode == 13) {
+              sendMessage(assignedID);
+              e.stopPropagation();
+              e.stopped = true;
+              e.preventDefault();
+          }
+      });
+  }
+
+    addAudioToPage();
+    isWindowIsActive();
+    inputEnterDetection()
+    
+    //Bootrap scripts
+    $(".alert").alert();
+  })
+.controller('chatLoginCtrl', function($q, $scope, $location, SocketConn, localStorageService){
+	var usrDataFromLS = JSON.parse(localStorageService.get('user'));
+	console.log(usrDataFromLS);
+	if(usrDataFromLS !== null){
+		//SocketConn.reconnectUser(usrDataFromLS);
+		$location.path('/chat');
+	}else{
+		console.info('display login form');
+		$scope.loginFormValid = 'disabled';
+
+		$scope.toggleLoginBtn = function(input){
+	    	if(input !== undefined && input.length > 0 )
+	    		$scope.loginFormValid = ''
+	    	else
+	    		$scope.loginFormValid = 'disabled';
+	    }
+
+	    var defer = $q.defer();
+
+	    var addNewUser = function (loginInput) {
+	    	console.log(defer);
+	    	defer.promise
+	    		.then(function () {
+	    			var result = SocketConn.addNewUser(loginInput);
+
+	    			return defer.resolve(result);
+	    		})
+	    		.then(function(result) {
+	    			console.log('promise');
+	    			
+			    	console.log("@@@@@" + result);
+			    	if(result){
+			    		$location.url('/chat');
+			    		console.log('resolve')
+			    		defer.resolve();
+			    	}else{
+			    		console.log('reject')
+			    		defer.reject();
+			    	}
+			    }, function (err) {
+			    	console.log(err);
+			    });
+
+	    	defer.resolve();
+	    }
+
+	    $scope.sendForm = function(){
+	    	addNewUser(this.loginInput);
+	    }
 	}
-	    addAudioToPage();
-	    isWindowIsActive();
-	    
-	    //Bootrap scripts
-	    $(".alert").alert();
-  });
+    
+}).controller('chatLogoutCtrl', function($location, localStorageService, SocketConn){
+	var usrDataFromLS = JSON.parse(localStorageService.get('user'));
+	SocketConn.logoutUser(usrDataFromLS.id);
+	localStorageService.remove('user');
+
+	$location.path('/');
+})

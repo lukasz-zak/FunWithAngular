@@ -1,33 +1,66 @@
 var UsersDB = function () {
-    this.users = [];
+    var that = this;
+    that.users = [];
 
-    this.addNewUser = function (id, userName) {
-        this.users.push({
+    var idsForVerify = []; //to check if reconnected user was here before
+
+    that.addNewUser = function (id, userName) {
+        that.users.push({
             'id'        : id,
             'userName'  : userName,
             'color'     : getRandomColor()
         });
+        idsForVerify.push(id);
     }
 
-    this.removeUser = function(id){
-        this.users.pop(this.findUserById(id));
+    that.addReconnectedUser = function (id, data) {
+        idsForVerify.forEach(function(oldId){
+            if(data.id === oldId){
+                that.users.push({
+                    'id'        : id,
+                    'userName'  : data.userName,
+                    'color'     : data.userColor
+                });
+                idsForVerify.push(id);
+                return false;
+            };
+        });
+
+        var index = idsForVerify.indexOf(data.id);
+        idsForVerify.splice(index, 1);
     }
 
-    this.getList = function() {
-        return this.users;
+    that.removeUser = function(id){
+        console.log('@: removing user with id: ' + id);
+        that.users.pop(that.findUserById(id));
     }
 
-    this.findUserById = function(id){
+    that.removeIdFromTmp = function(id){
+        console.log('@: removing id from tmp array: ' + id);
+        var index = idsForVerify.indexOf(id);
+        idsForVerify.splice(index, 1);
+    }
+
+    that.getList = function() {
+        console.log('#######');
+        console.log(that.users);
+        console.log('----------');
+        console.log(idsForVerify);
+        console.log('#######');
+        return that.users;
+    }
+
+    that.findUserById = function(id){
         var user;
-        this.users.forEach(function(usr) {
+        that.users.forEach(function(usr) {
             if(usr.id === id)
                 user = usr;
         });
         return user;
     }
 
-    this.socketIdExist = function(id){
-        this.users.forEach(function(usr) {
+    that.socketIdExist = function(id){
+        that.users.forEach(function(usr) {
             if(usr.id === id)
                 return true;
             else
@@ -35,10 +68,10 @@ var UsersDB = function () {
         });   
     }
 
-    this.nameNotExist = function(userName){
+    that.nameNotExist = function(userName){
         var exist;
-        if(this.users.length > 0){
-            this.users.forEach(function(usr) {
+        if(that.users.length > 0){
+            that.users.forEach(function(usr) {
                 usr.userName === userName
                     ? exist = false
                     : exist = true;

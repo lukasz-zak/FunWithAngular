@@ -1,7 +1,9 @@
 'use strict';
 
-angular.module('FunWithAngular.services', [])
- 	.factory('Users', function(){
+//TODO: remove in future...
+
+angular.module('FunWithAngular.services')
+ 	.factory('Users', function(SocketConn, $rootScope){
 		var user = {};
 		var usersList = [];
 
@@ -24,6 +26,7 @@ angular.module('FunWithAngular.services', [])
 		}
 
 		user.getUsersList = function(){
+			console.log(usersList);
 			return usersList;
 		}
 
