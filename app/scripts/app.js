@@ -16,8 +16,8 @@ angular.module('FunWithAngular',
         templateUrl: 'views/chatMain.html',
         controller: 'ChatCtrl',
         resolve : {
-          app :  function (SocketConn, $q, $timeout) {
-            return SocketConn.addNewUser('name', $q, $timeout);
+          app :  function (SocketConn) {
+            return SocketConn.addNewUser('name');
           }
         }
       })

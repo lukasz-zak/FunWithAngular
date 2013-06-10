@@ -74,9 +74,9 @@ angular.module('FunWithAngular.services')
 		        return getCookies()[name];
 		    },
 
-		    addNewUser: function(usrName, q, $timeout){
-		    	console.log(q);
- 				var defer = q.defer();
+		    addNewUser: function(usrName){
+		    	console.log($q);
+ 				var defer = $q.defer();
  				$timeout(function () {
  					defer.resolve();
  				},3000);
