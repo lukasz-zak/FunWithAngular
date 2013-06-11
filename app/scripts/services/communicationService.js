@@ -3,14 +3,12 @@
 angular.module('FunWithAngular.services')
  	.factory('SocketConn', function($timeout, $q, $rootScope, socket, localStorageService, $location){
 		var socket = io.connect('http://localhost:9001/');
-		window.sock = socket;
 
  		var usersList,
  			newJoiner,
  			myUsrName,
  			amount,
- 			getCookies,
- 			isAnyError;
+ 			getCookies;
 
  		socket.on('usersList', function(data){
  			usersList = data;
@@ -87,27 +85,14 @@ angular.module('FunWithAngular.services')
 					if (response) {
 						result.success = true;
 						result.userName = usrName;
-
-						defer.resolve(result);
-					} else
+						
+						$rootScope.$apply(defer.resolve(result))
+					} else{
 						defer.reject();
-
-					return defer.promise;
+					}
 				});
+				return defer.promise;
 			},
-
- 			// addNewUser: function(usrName){
- 			// 	var resp;
- 			// 	console.log('emit add new user');
- 			// 	socket.emit('addNewUser', usrName, function(result){
- 			// 		console.log("===============>" + result);
- 			// 		if(result)
- 			// 			myUsrName = usrName;
-
- 			// 		resp = result
- 			// 		return resp;
- 			// 	});
- 			// },
 
  			reconnectUser : function (usrData) {
  				console.log('emit for reconnectUser');
@@ -136,10 +121,6 @@ angular.module('FunWithAngular.services')
  			getNewJoiner : function(){
  				return newJoiner;
  			},
-
- 			isAnyError : function () {
- 				return isAnyError;
- 			}
  		}
 
  		//Socket listeneres

@@ -272,14 +272,13 @@ angular.module('FunWithAngular')
     //Bootrap scripts
     $(".alert").alert();
   })
-.controller('chatLoginCtrl', function($scope, $location, SocketConn, localStorageService){
+.controller('chatLoginCtrl', function($q, $scope, $location, SocketConn, localStorageService){
 	var usrDataFromLS = JSON.parse(localStorageService.get('user'));
 	console.log(usrDataFromLS);
 	if(usrDataFromLS !== null){
 		//SocketConn.reconnectUser(usrDataFromLS);
 		$location.path('/chat');
 	}else{
-		console.info('display login form');
 		$scope.loginFormValid = 'disabled';
 
 		$scope.toggleLoginBtn = function(input){
@@ -291,8 +290,14 @@ angular.module('FunWithAngular')
 
 	    $scope.sendForm = function(){
 	    	//tutaj zwracany jest promise z dodawania usera:
-	    	SocketConn.addNewUser(this.loginInput);
-	    	$location.path('/chat');
+	    	SocketConn.addNewUser(this.loginInput)
+	    		.then(function (result) {
+	    			console.log(result);
+	    			if(result.success)
+	    				$location.path('/chat');
+	    		}, function (result) {
+	    			console.log('error!: ' + result);
+	    		});
 	    }
 	}
     
