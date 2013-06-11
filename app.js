@@ -1,12 +1,8 @@
 var http    = require('http'),
-    //app = require('express.io')(),
-    usersDB = require('./modules/users.js');
-    //io      = require('socket.io').listen(9001); // for npm, otherwise use require('./path/to/socket.io') 
-
-//app.http().io()
-var express = require('express'),
+    usersDB = require('./modules/users.js'),
+    express = require('express'),
     app = express(),
-    server = http.createServer(app);
+    server = http.createServer(app),
     io = require('socket.io').listen(server);
 
 // var passport = require('passport')

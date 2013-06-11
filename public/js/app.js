@@ -27,7 +27,7 @@ angular.module('FunWithAngular',
       .otherwise({
         redirectTo: '/error'
       });
-      $locationProvider.html5Mode(false);
+      $locationProvider.html5Mode(true);
   }).run(function($rootScope, $location, SocketConn, localStorageService){
     console.log('AppRun!');
 

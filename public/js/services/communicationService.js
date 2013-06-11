@@ -12,7 +12,7 @@ angular.module('FunWithAngular.services')
  		socket.on('usersList', function(data){
  			usersList = data;
  			console.log('usersList: ', usersList);
- 			$rootScope.$apply();
+ 			//$rootScope.$apply();
  		})
 
  		socket.on('newUserJoin', function(data){
@@ -20,7 +20,7 @@ angular.module('FunWithAngular.services')
  			localStorageService.add('user', JSON.stringify(data));
  			setCookieForNextHour(data.id)
  			amount = data.amount;
- 			$rootScope.$apply();
+ 			//$rootScope.$apply();
  		})
 
 
@@ -85,7 +85,8 @@ angular.module('FunWithAngular.services')
 						result.success = true;
 						result.userName = usrName;
 						
-						$rootScope.$apply(defer.resolve(result))
+						console.log($rootScope.$$phase);
+						$rootScope.$digest(defer.resolve(result))
 					} else{
 						defer.reject();
 					}
