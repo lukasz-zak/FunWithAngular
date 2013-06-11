@@ -1,0 +1,41 @@
+<!-- <link rel="stylesheet" href="/css/chat.css" data-inprogress=""> -->
+<div class="container-fluid">
+  <div class="row-fluid">
+    <div class="span7 offset2 fade in">
+      <h1>
+        <a href="/">AngularChat</a>
+
+        <div class="btn-group pull-right">
+          <button class="btn btn-primary" ><i class="icon-user icon-white"></i> User</button>
+          <button class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>
+          <ul class="dropdown-menu">
+            <li><a href="#" ng-click="logout($event)"><i class="icon-off"></i> LogOut</a></li>
+          </ul>
+        </div>
+      </h1>
+      <div id="alertsDiv"></div>
+      <span id="feedback"></span>
+    </div>
+  </div>
+  <div class="row-fluid">
+    <div class="span5 offset2">
+      <ul id="chatRooms" class="nav nav-tabs">
+        <li class="active"><a href="#home" data-toggle="tab">Global</a></li>
+      </ul>
+      <div class="tab-content">
+        <div id="home" class="tab-pane active">
+          <div class="msgWindow shadow hidden"></div>
+          <input type="text" class="msgInput">
+        </div>
+      </div>
+    </div>
+    
+    <div class="span2" ng-include src="usersListPartial"></div>
+  </div>
+  <div class="row-fluid">
+    <footer class="span7 offset2">
+      <hr>
+      <p>© 2013</p>
+    </footer>
+  </div>
+</div>

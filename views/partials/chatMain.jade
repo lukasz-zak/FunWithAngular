@@ -1,0 +1,32 @@
+.container-fluid
+  .row-fluid
+    .span7.offset2.fade.in
+      h1
+        a(href='/') AngularChat
+        .btn-group.pull-right
+          button.btn.btn-primary
+            i.icon-user.icon-white
+            | User
+          button.btn.btn-primary.dropdown-toggle(data-toggle='dropdown')
+            span.caret
+          ul.dropdown-menu
+            li
+              a(href='#', ng-click='logout($event)')
+                i.icon-off
+                | LogOut
+      #alertsDiv
+      span#feedback
+  .row-fluid
+    .span5.offset2
+      ul#chatRooms.nav.nav-tabs
+        li.active
+          a(href='#home', data-toggle='tab') Global
+      .tab-content
+        #home.tab-pane.active
+          .msgWindow.shadow.hidden
+          input.msgInput(type='text')
+    .span2(ng-include='ng-include', src='usersListPartial')
+  .row-fluid
+    footer.span7.offset2
+      hr
+      p © 2013

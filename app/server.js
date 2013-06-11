@@ -1,54 +1,38 @@
 var http    = require('http'),
-    app = require('express.io')(),
-    usersDB = require('./modules/users.js');
+    //app = require('express.io')(),
+    usersDB = require('./server/modules/users.js');
     //io      = require('socket.io').listen(9001); // for npm, otherwise use require('./path/to/socket.io') 
 
-app.http().io(9001)
-// var express = require('express'),
-//     app = express(),
-//     server = http.createServer(app),
-//     io = require('socket.io').listen(server);
+//app.http().io()
+var express = require('express'),
+    app = express(),
+    server = http.createServer(app),
+    io = require('socket.io').listen(server);
 
-var passport = require('passport')
-  , LocalStrategy = require('passport-local').Strategy;
+// var passport = require('passport')
+//   , LocalStrategy = require('passport-local').Strategy;
 
-passport.use(new LocalStrategy(
-  function(username, password, done) {
-    User.findOne({ username: username }, function(err, user) {
-      if (err) { return done(err); }
-      if (!user) {
-        return done(null, false, { message: 'Incorrect username.' });
-      }
-      if (!user.validPassword(password)) {
-        return done(null, false, { message: 'Incorrect password.' });
-      }
-      return done(null, user);
-    });
-  }
-));
+// passport.use(new LocalStrategy(
+//   function(username, password, done) {
+//     User.findOne({ username: username }, function(err, user) {
+//       if (err) { return done(err); }
+//       if (!user) {
+//         return done(null, false, { message: 'Incorrect username.' });
+//       }
+//       if (!user.validPassword(password)) {
+//         return done(null, false, { message: 'Incorrect password.' });
+//       }
+//       return done(null, user);
+//     });
+//   }
+// ));
 
 
-app.get('/', function (req, res) {
-    console.log('route /')
-})
-app.get('/test', function (req, res) {
-    console.log(res);
-    res.send('Welcome to the profile of Semmy Purewal');
-}).get('/', function  (req, res) {
-  res.render('index', { layout: false });
-})
-app.post('/login',
-  passport.authenticate('local', { 
-        successRedirect: '/',
-        failureRedirect: '/login',
-        failureFlash: true
-    })
-);
 
-app.listen(9001)
-//server.listen(9000);
+//app.listen(9000)
+server.listen(9001);
 
-var io = app.io;
+//var io = app.io;
 // Reducing socket.io log (debug) statements
 io.set('log level', 2);
 
