@@ -6,11 +6,13 @@ var UsersDB = function () {
 
     that.addNewUser = function (id, userName) {
         that.users.push({
+            'storeId'   : that.users.length + 1, 
             'id'        : id,
             'userName'  : userName,
             'color'     : getRandomColor()
         });
         idsForVerify.push(id);
+        that.getList();
     }
 
     that.addReconnectedUser = function (id, data) {
@@ -51,12 +53,38 @@ var UsersDB = function () {
     }
 
     that.findUserById = function(id){
+        console.log('find user by id');
         var user;
         that.users.forEach(function(usr) {
             if(usr.id === id)
                 user = usr;
         });
         return user;
+    }
+
+    that.findUserByName = function (name, fn) {
+        console.log('find user by name: ' + name);
+        var user;
+        that.users.forEach(function(usr) {
+            console.log('usr : ' + usr.userName);
+            if(usr.userName === name){
+                user = usr;
+                console.log('yeah!');
+            }
+        });
+        return fn(null, user);
+    }
+
+
+    that.findById = function(id, fn) {
+        console.log('id: ' + id);
+        var idx = id - 1;
+        if (that.users[idx]) {
+            console.log('retun : ' + that.users[idx]);
+            fn(null, that.users[idx]);
+        } else {
+            fn(new Error('User ' + id + ' does not exist'));
+        }
     }
 
     that.socketIdExist = function(id){

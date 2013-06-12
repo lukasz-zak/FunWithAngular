@@ -5,9 +5,12 @@
   },
   "version": "0.0.1",
   "dependencies": {
-    "grunt-karma": "~0.4.4",
     "express": "~3.2.6",
-    "jade": "~0.31.2"
+    "jade": "~0.31.2",
+    "connect-flash": "~0.1.1",
+    "socket.io": "~0.9.16",
+    "passport-local": "~0.1.6",
+    "passport": "~0.1.17"
   },
   "engines": {
     "node": ">=0.8.0"

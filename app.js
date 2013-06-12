@@ -1,27 +1,17 @@
 var http    = require('http'),
     usersDB = require('./modules/users.js'),
+    flash = require('connect-flash')
     express = require('express'),
     app = express(),
     server = http.createServer(app),
-    io = require('socket.io').listen(server);
+    io = require('socket.io').listen(server),
+    passport = require('passport'),
+    LocalStrategy = require('passport-local').Strategy,
+    auth = require('./modules/auth.js');
 
-// var passport = require('passport')
-//   , LocalStrategy = require('passport-local').Strategy;
 
-// passport.use(new LocalStrategy(
-//   function(username, password, done) {
-//     User.findOne({ username: username }, function(err, user) {
-//       if (err) { return done(err); }
-//       if (!user) {
-//         return done(null, false, { message: 'Incorrect username.' });
-//       }
-//       if (!user.validPassword(password)) {
-//         return done(null, false, { message: 'Incorrect password.' });
-//       }
-//       return done(null, user);
-//     });
-//   }
-// ));
+usersDB.addNewUser('adadda@#Edadq', 'Woo');
+
 
 app.configure(function() {
     app.set('views', __dirname + '/views');
@@ -30,11 +20,29 @@ app.configure(function() {
         layout: false,
         pretty: true,
       });
+      app.use(express.cookieParser());
       app.use(express.bodyParser());
       app.use(express.methodOverride());
+      app.use(express.session({ secret: 'keyboard cat' }));
       app.use(express.static(__dirname + '/public'));
+      app.use(flash());
+      app.use(passport.initialize());
+      app.use(passport.session());
       app.use(app.router);
 });
+
+
+
+app.get('/login', function(req, res){
+  res.render('partials/main', { user: req.user, message: req.flash('error') });
+});
+
+app.post('/login', 
+  passport.authenticate('local', { failureRedirect: '/login', failureFlash: true }),
+  function(req, res) {
+    res.redirect('/');
+  });
+
 
 
 app.get('/test', function (req, res) {
@@ -44,21 +52,14 @@ app.get('/test', function (req, res) {
     console.log('partial');
     var name = req.params.view;
     console.log('-name-' + name);
-    res.render('partials/' + name);
+    res.render('partials/' + name,  { user: req.user, message: 'error' });
 }).get('/', function(req, res){
-    console.log('/maina')
+    console.log('/main')
     res.render('index')
 }).get('*', function(req, res){
     console.log('***')
     res.render('index')
 });
-// app.post('/login',
-//   passport.authenticate('local', { 
-//         successRedirect: '/',
-//         failureRedirect: '/login',
-//         failureFlash: true
-//     })
-// );
 
 
 io.set('log level', 2);

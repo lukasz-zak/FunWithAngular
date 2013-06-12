@@ -3,7 +3,10 @@ br
 .hero-unit
   form.form-horizontal(name='loginForm', ng-submit='sendForm()')
     .control-group
-      h1 Hello!
+      - if (user)
+        h1 Hello! #{user.userName}
+      - else
+        h1 Hello! Anon -.-
       h5 Type your nick below and click 'LogIn'
     .control-group
       input(type='text', ng-change='toggleLoginBtn(loginInput)', ng-model='loginInput', required='required')
@@ -16,6 +19,6 @@ br
       input(type='text', name='username')
     div
       label Password:
-      input(type='password', name='password')
+      input(type='hidden', name='password', value='pass')
     div
       input(type='submit', value='Log In')
