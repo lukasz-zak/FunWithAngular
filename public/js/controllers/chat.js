@@ -3,16 +3,11 @@
 angular.module('FunWithAngular')
   .controller('ChatCtrl', function ($scope, $rootScope, SocketConn, Users, $location) {
 
-  	$scope.socketConnService = SocketConn;
-    $scope.usersAmount = 0;
-    $scope.partialsUrl = '/views/partials/';
-    $scope.usersListPartial = $scope.partialsUrl + 'usersList.html';
-    $scope.usersList = $scope.socketConnService.getUsers();
-
-
-    if($scope.socketConnService.getMyUsrName()  === undefined){
-    	$location.url('/');
-    }
+	$scope.socketConnService = SocketConn;
+  $scope.usersAmount = 0;
+  $scope.usersListPartial = '/partials/usersList';
+  $scope.usersList = $scope.socketConnService.getUsers();
+  $scope.myUserName = $scope.socketConnService.getMyUsrName();
 
     $scope.logout = function(e){
     	e.preventDefault();
@@ -22,8 +17,7 @@ angular.module('FunWithAngular')
 
     //to check if user on list is me or not
     $scope.checkIfMe = function(index){
-    	if($scope.usersList[index].userName 
-    		=== $scope.socketConnService.getMyUsrName())
+    	if($scope.usersList[index].userName === $scope.socketConnService.getMyUsrName())
     		return 'itsMe';
     	else
     		return '';
@@ -36,31 +30,30 @@ angular.module('FunWithAngular')
 			console.log("watching new joiner: " + newVal);
 			$scope.usersAmount = $scope.socketConnService.getUsersAmount();
 		    var msgForChat = {
-		        "source": {
-		        	'userName': 'SYSTEM'
-		        },
-		        "message": newVal +" join to chat.",
-		        "target": 'All',
-		        "userColor" : 'green'
+	        "source": {
+	        	'userName': 'SYSTEM'
+	        },
+	        "message": newVal +" join to chat.",
+	        "target": 'All',
+	        "userColor" : 'green'
 	    	};
 			appendNewMessage(msgForChat);
 		}
 		console.groupEnd('watchingNewJoiner');
     }, true);
 
-    $scope.$watch('socketConnService.getUsers()', function(newVal, oldVal){
-    	console.group('watchingGetUsers');
-    	console.log(newVal, oldVal);
+  $scope.$watch('socketConnService.getUsers()', function(newVal, oldVal){
+  	console.group('watchingGetUsers');
+  	console.log(newVal, oldVal);
 		if(newVal !== undefined){
 			console.log("watching usersList: " + newVal);
 			$scope.usersList = newVal;
 			$scope.usersAmount = newVal.length;
 		}
 		console.groupEnd('watchingGetUsers');
-    }, true);
+  }, true);
 
-    var hidden = 'hidden';
-	var myUserName;
+  var hidden = 'hidden';
 
 	function onchange (evt) {
 	    var v = 'visible', h = 'hidden',
@@ -76,56 +69,55 @@ angular.module('FunWithAngular')
 	}
 
 	function isWindowIsActive(){
-	    // Standards:
-	    if (hidden in document)
-	        document.addEventListener("visibilitychange", onchange);
-	    else if ((hidden = "mozHidden") in document)
-	        document.addEventListener("mozvisibilitychange", onchange);
-	    else if ((hidden = "webkitHidden") in document)
-	        document.addEventListener("webkitvisibilitychange", onchange);
-	    else if ((hidden = "msHidden") in document)
-	        document.addEventListener("msvisibilitychange", onchange);
-	    // IE 9 and lower:
-	    else if ('onfocusin' in document)
-	        document.onfocusin = document.onfocusout = onchange;
-	    // All others:
-	    else
-	        window.onpageshow = window.onpagehide 
-	            = window.onfocus = window.onblur = onchange;
+    // Standards:
+    if (hidden in document)
+      document.addEventListener("visibilitychange", onchange);
+    else if ((hidden = "mozHidden") in document)
+      document.addEventListener("mozvisibilitychange", onchange);
+    else if ((hidden = "webkitHidden") in document)
+      document.addEventListener("webkitvisibilitychange", onchange);
+    else if ((hidden = "msHidden") in document)
+      document.addEventListener("msvisibilitychange", onchange);
+    // IE 9 and lower:
+    else if ('onfocusin' in document)
+      document.onfocusin = document.onfocusout = onchange;
+    // All others:
+    else
+      window.onpageshow = window.onpagehide = window.onfocus = window.onblur = onchange;
 	}
 
 	function addAudioToPage(){
-	    $('<audio id="chatAudio"><source src="/sounds/notify.ogg" type="audio/ogg"><source src="notify.mp3" type="audio/mpeg"><source src="notify.wav" type="audio/wav"></audio>').appendTo('body');
+	  $('<audio id="chatAudio"><source src="/sounds/notify.ogg" type="audio/ogg"><source src="notify.mp3" type="audio/mpeg"><source src="notify.wav" type="audio/wav"></audio>').appendTo('body');
 	}
 
 
 
 	function enablePrivMsg(){
-	    $('#usersList span.user > button').on('click', function(e){
-	        var destUser = $(this).parent().attr('id').replace('user-', '');
-	        var target = 'user-' + destUser;
-	        var targetTab = target + '-tab';
-	        
-	        if($('#'+ targetTab).length === 0){
-	            var newNavToRoom = $("<li><a id='"+targetTab+"' href='#"+target+"' data-toggle='tab'>"+destUser+"</a></li>");
-	            $("ul#chatRooms").append(newNavToRoom);
-	            $('#Home.msgWindow').hide();
-	            $.get('chat/getWindow',
-	                {'tabID' : target})
-	                    .done(function(data){
-	                        var newTabContent = $('<div id="'+target+'" class="tab-pane"></div>')
-	                        var $data = $(data);
-	                        $data.find('.msgInput').attr('id', 'prv-' + target);
-	                        newTabContent.html($data);
-	                        $('.tab-content').append(newTabContent);
-	                        $('#chatRooms a#'+targetTab).tab('show');
-	                        enableMsgInput('enable');
-	                        inputEnterDetection('#prv-' + target);
-	                    });
-	        } else{
-	            $('#chatRooms a#'+targetTab).tab('show');
-	        }
-	    });
+    $('#usersList span.user > button').on('click', function(e){
+      var destUser = $(this).parent().attr('id').replace('user-', '');
+      var target = 'user-' + destUser;
+      var targetTab = target + '-tab';
+      
+      if($('#'+ targetTab).length === 0){
+        var newNavToRoom = $("<li><a id='"+targetTab+"' href='#"+target+"' data-toggle='tab'>"+destUser+"</a></li>");
+        $("ul#chatRooms").append(newNavToRoom);
+        $('#Home.msgWindow').hide();
+        $.get('chat/getWindow',
+          {'tabID' : target})
+            .done(function(data){
+              var newTabContent = $('<div id="'+target+'" class="tab-pane"></div>')
+              var $data = $(data);
+              $data.find('.msgInput').attr('id', 'prv-' + target);
+              newTabContent.html($data);
+              $('.tab-content').append(newTabContent);
+              $('#chatRooms a#'+targetTab).tab('show');
+              enableMsgInput('enable');
+              inputEnterDetection('#prv-' + target);
+            });
+      } else{
+        $('#chatRooms a#'+targetTab).tab('show');
+      }
+    });
 	}
 
 	function enableUsernameField(enable) {
@@ -272,34 +264,52 @@ angular.module('FunWithAngular')
     //Bootrap scripts
     $(".alert").alert();
   })
-.controller('chatLoginCtrl', function($q, $scope, $location, SocketConn, localStorageService){
-	var usrDataFromLS = JSON.parse(localStorageService.get('user'));
-	console.log(usrDataFromLS);
-	if(usrDataFromLS !== null){
-		//SocketConn.reconnectUser(usrDataFromLS);
-		$location.path('/chat');
-	}else{
-		$scope.loginFormValid = 'disabled';
+.controller('chatLoginCtrl', function($q, $scope, $http, $location, SocketConn, localStorageService){
 
-		$scope.toggleLoginBtn = function(input){
-	    	if(input !== undefined && input.length > 0 )
-	    		$scope.loginFormValid = ''
-	    	else
-	    		$scope.loginFormValid = 'disabled';
-	    }
+  $scope.close = function () {
+    $scope.closeMsg = 'I was closed at: ' + new Date();
+    $scope.shouldBeOpen = false;
+  };
 
-	    $scope.sendForm = function(){
-	    	//tutaj zwracany jest promise z dodawania usera:
-	    	SocketConn.addNewUser(this.loginInput)
-	    		.then(function (result) {
-	    			console.log(result);
-	    			if(result.success)
-	    				$location.path('/chat');
-	    		}, function (result) {
-	    			console.log('error!: ' + result);
-	    		});
-	    }
+  $scope.opts = {
+    backdropFade: true,
+    dialogFade:true
+  };
+
+	$scope.loginFormValid = 'disabled';
+
+	$scope.toggleLoginBtn = function(input){
+		if(input !== undefined && input.length > 0 )
+	   	$scope.loginFormValid = ''
+	  else
+	   	$scope.loginFormValid = 'disabled';
 	}
+
+  $scope.sendForm = function(){
+
+  	SocketConn.addNewUser(this.loginInput)
+  		.then(function (result) {
+  			console.log(result);
+  			if(result.success)
+  				$http.post('/user/login/', {
+  					'username' : result.userName,
+  					'password' : 'pony'
+  				}).success(function(data, status){
+  					//success
+  					console.log(data)
+  					console.log(status);
+  					console.log('success with adding new User');
+  					if(data.user && data.user.id){
+  						SocketConn.setMyUsrName(data.user.userName);
+  						$location.path('/chat');
+  					}
+  				});
+  		}, function (result) {
+  			console.log('error!: ' + result);
+  			$scope.warning = result;
+  			$scope.shouldBeOpen = true;
+  		});
+  }
     
 }).controller('chatLogoutCtrl', function($location, localStorageService, SocketConn){
 	var usrDataFromLS = JSON.parse(localStorageService.get('user'));

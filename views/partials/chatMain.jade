@@ -6,7 +6,7 @@
         .btn-group.pull-right
           button.btn.btn-primary
             i.icon-user.icon-white
-            | User
+            | {{" " + myUserName}}
           button.btn.btn-primary.dropdown-toggle(data-toggle='dropdown')
             span.caret
           ul.dropdown-menu
@@ -25,7 +25,7 @@
         #home.tab-pane.active
           .msgWindow.shadow.hidden
           input.msgInput(type='text')
-    .span2(ng-include='ng-include', src='usersListPartial')
+    .span2(ng-include='', src='usersListPartial')
   .row-fluid
     footer.span7.offset2
       hr

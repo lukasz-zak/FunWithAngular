@@ -4,9 +4,9 @@ angular.module('FunWithAngular.services', ['btford.socket-io']);
 
 angular.module('FunWithAngular.directives', []);
 
-angular.module('FunWithAngular',
-  ['ui', 'LocalStorageModule', 'FunWithAngular.services'])
+angular.module('FunWithAngular', ['ui', 'LocalStorageModule', 'FunWithAngular.services', 'ui.bootstrap'])
   .config(function ($routeProvider, $locationProvider) {
+
     $routeProvider
       .when('/', {
         templateUrl: 'partials/chatLogin',
@@ -14,7 +14,21 @@ angular.module('FunWithAngular',
       })
       .when('/chat', {
         templateUrl: 'partials/chatMain',
-        controller: 'ChatCtrl'
+        controller: 'ChatCtrl',
+        resolve: {
+          authResolver: function($q, $location, $http, SocketConn){
+            var defer = $q.defer();
+            $http.get('/auth').success(function(data, status){
+              console.log(data);
+              console.log(status);
+              if(data.isAuthenticated === true)
+                defer.resolve();
+              else{
+                $location.path('/');
+              }
+            })
+          }
+        }
       })
       .when('/main',{
         templateUrl: 'partials/main',
@@ -27,26 +41,18 @@ angular.module('FunWithAngular',
       .otherwise({
         redirectTo: '/error'
       });
-      $locationProvider.html5Mode(true);
-  }).run(function($rootScope, $location, SocketConn, localStorageService){
+      $locationProvider.html5Mode(false);
+  }).run(function($rootScope, $http, $location, SocketConn, localStorageService){
     console.log('AppRun!');
 
     $rootScope.$watch(function () {
       return $location.path();
     }, function (newLocation, oldLocation) {
-      console.group('watchingInApp');
-      var usrDataFromLS = JSON.parse(localStorageService.get('user'));
-      console.log(newLocation, oldLocation);
-      if(newLocation === '/chat' && usrDataFromLS !== null ){
-          console.log('new location is /chat')
-          console.log('usrDataFromLS: ', usrDataFromLS);
-          if(SocketConn.getCookie('username') === usrDataFromLS.id){
-            SocketConn.reconnectUser(usrDataFromLS);
-            console.log("my name is: ", usrDataFromLS.userName);
-          }else{
-            $location.path('/');
-          }
+      if(oldLocation === '/' ||  oldLocation === ''){
+        $http.get('/auth').success(function(data, status){
+          if(data.isAuthenticated === true)
+            $location.path('/chat');
+        });
       }
-      console.groupEnd('watchingInApp');
     }, true);
   });

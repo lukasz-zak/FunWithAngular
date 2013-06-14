@@ -10,56 +10,67 @@ var http    = require('http'),
     auth = require('./modules/auth.js');
 
 
-usersDB.addNewUser('adadda@#Edadq', 'Woo');
+//usersDB.addNewUser('adadda@#Edadq', 'Woo');
 
 
 app.configure(function() {
-    app.set('views', __dirname + '/views');
-      app.set('view engine', 'jade');
-      app.set('view options', {
-        layout: false,
-        pretty: true,
-      });
-      app.use(express.cookieParser());
-      app.use(express.bodyParser());
-      app.use(express.methodOverride());
-      app.use(express.session({ secret: 'keyboard cat' }));
-      app.use(express.static(__dirname + '/public'));
-      app.use(flash());
-      app.use(passport.initialize());
-      app.use(passport.session());
-      app.use(app.router);
+  app.set('views', __dirname + '/views');
+  app.set('view engine', 'jade');
+  app.set('view options', {
+    layout: false,
+    pretty: true,
+  });
+  app.use(express.cookieParser());
+  app.use(express.bodyParser());
+  app.use(express.methodOverride());
+  app.use(express.session({ secret: 'keyboard cat' }));
+  app.use(express.static(__dirname + '/public'));
+  app.use(flash());
+  app.use(passport.initialize());
+  app.use(passport.session());
+  app.use(app.router);
 });
 
+
+app.get('/auth2', passport.authenticate('local', {failureFlash: true}), function(res, req){
+  console.log(req);
+  console.log(res);
+});
+
+app.get('/auth', function(req, res, next) {
+  if (req.isAuthenticated()) { console.log('bbb'); return next(); }
+  res.json({'isAuthenticated' : false});
+  }, function(req, res){
+      console.log('aaa');
+      res.json({'isAuthenticated' : true});
+});
 
 
 app.get('/login', function(req, res){
   res.render('partials/main', { user: req.user, message: req.flash('error') });
 });
 
-app.post('/login', 
-  passport.authenticate('local', { failureRedirect: '/login', failureFlash: true }),
+app.post('/user/login', 
+  passport.authenticate('local', {failureRedirect: '/login', failureFlash: true }),
   function(req, res) {
-    res.redirect('/');
+      console.log('usr/login');
+    res.json({
+        user : req.user,
+    });
   });
 
-
-
-app.get('/test', function (req, res) {
-    console.log('/test');
-    res.send('Welcome to the profile of Semmy Purewal');
-}).get('/partials/:view', function(req, res){
-    console.log('partial');
+app.get('/partials/:view', function(req, res){
     var name = req.params.view;
     console.log('-name-' + name);
     res.render('partials/' + name,  { user: req.user, message: 'error' });
 }).get('/', function(req, res){
     console.log('/main')
     res.render('index')
-}).get('*', function(req, res){
-    console.log('***')
-    res.render('index')
-});
+})
+// .get('*', function(req, res){
+//     console.log('***')
+//     res.render('index')
+// });
 
 
 io.set('log level', 2);
@@ -81,6 +92,7 @@ io.sockets.on('connection', function(socket) {
             console.log('exist in db');
         } else{
             userNameAlreadyInUse(socket.id, usrName);
+            console.log('//userEXIST');
             fn(false);
         }
     });
@@ -161,13 +173,13 @@ io.sockets.on('connection', function(socket) {
 
     socket.on('disconnect', function() {
         console.log('//userDisconnect')
-        var usr = usersDB.findUserById(socket.id);
-        console.log('urs: ', usr);
-        if(usr !== undefined){
-            usersDB.removeUser(socket.id);
-            userLeft(usr.userName);
-            emitUsersList();
-        }
+        // var usr = usersDB.findUserById(socket.id);
+        // console.log('urs: ', usr);
+        // if(usr !== undefined){
+        //     usersDB.removeUser(socket.id);
+        //     userLeft(usr.userName);
+        //     emitUsersList();
+        // }
     })
 })
 

@@ -1,0 +1,11 @@
+nav#usersList
+    span.usersAmount
+      i.icon-user
+      | Total users:&nbsp;
+      a.badge.badge-success {{usersAmount}}
+    span.user(id="user-{{user.userName}}", ng-repeat='user in usersList', ng:class='checkIfMe($index)')
+      i.icon-chevron-right
+      | {{user.userName}}
+      button.hide.btn.btn-mini(type='button')
+        i.icon-comment
+
