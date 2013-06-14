@@ -38,11 +38,10 @@ app.get('/auth2', passport.authenticate('local', {failureFlash: true}), function
 });
 
 app.get('/auth', function(req, res, next) {
-  if (req.isAuthenticated()) { console.log('bbb'); return next(); }
-  res.json({'isAuthenticated' : false});
+      if (req.isAuthenticated()) { return next(); }
+      else res.json({'isAuthenticated' : false});
   }, function(req, res){
-      console.log('aaa');
-      res.json({'isAuthenticated' : true});
+    res.json({'isAuthenticated' : true});
 });
 
 

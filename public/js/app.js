@@ -53,6 +53,9 @@ angular.module('FunWithAngular', ['ui', 'LocalStorageModule', 'FunWithAngular.se
           if(data.isAuthenticated === true)
             $location.path('/chat');
         });
+      } 
+      //else if(oldLocation === '/chat' && newLocation === '/'){
+      //  $location.path('/chat');
       }
     }, true);
   });
