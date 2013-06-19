@@ -229,23 +229,4 @@ function userLeft(uName) {
     });
 }
 
-function userNameAvailable(sId, uName) {
-    setTimeout(function() {
-
-        console.log('Sending welcome msg to ' + uName + ' at ' + sId);
-        io.sockets.sockets[sId].emit('welcome', {
-            "userName": uName,
-            "currentUsers": JSON.stringify(usersDB.getList())
-        });
-
-    }, 500);
-}
-
-function userNameAlreadyInUse(sId, uName) {
-    io.sockets.sockets[sId].emit('error', {
-        "userNameInUse": true
-    });
-}
-
-
 server.listen(process.env.PORT || 9000);
