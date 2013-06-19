@@ -273,7 +273,7 @@ angular.module('FunWithAngular')
 
   $scope.opts = {
     backdropFade: true,
-    dialogFade:true
+    dialogFade: true
   };
 
 	$scope.loginFormValid = 'disabled';

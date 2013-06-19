@@ -8,9 +8,13 @@ angular.module('FunWithAngular', ['ui', 'LocalStorageModule', 'FunWithAngular.se
   .config(function ($routeProvider, $locationProvider) {
       
     var authResolver = function(SocketConn, $location){
-      return SocketConn.isAuthenticated($location.path())
+      var auth = SocketConn.isAuthenticated($location.path());
+      auth.promise.then(function(data){
+        SocketConn.fetchUserData(data.user);
+        return auth.promise;
+      })
     }
-    
+
     $routeProvider
       .when('/', {
         templateUrl: 'partials/chatLogin',

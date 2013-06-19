@@ -32,16 +32,14 @@ app.configure(function() {
 });
 
 
-app.get('/auth2', passport.authenticate('local', {failureFlash: true}), function(res, req){
-  console.log(req);
-  console.log(res);
-});
-
 app.get('/auth', function(req, res, next) {
       if (req.isAuthenticated()) { return next(); }
       else res.json({'isAuthenticated' : false});
   }, function(req, res){
-    res.json({'isAuthenticated' : true});
+      console.log('isAuthenticated');
+    var users = usersDB.getList();
+    console.log('================USER: ', req.user);
+    res.json({'isAuthenticated' : true, 'user' : req.user});
 });
 
 
@@ -60,8 +58,8 @@ app.post('/user/login',
 
 app.get('/partials/:view', function(req, res){
     var name = req.params.view;
-    console.log('-name-' + name);
-    res.render('partials/' + name,  { user: req.user, message: 'error' });
+    console.log('-------name-' + name);
+    res.render('partials/' + name, { user: req.user, message: req.flash('error') });
 }).get('/', function(req, res){
     console.log('/main')
     res.render('index')
@@ -84,8 +82,6 @@ io.sockets.on('connection', function(socket) {
             console.log('//userNotExist');
 
             usersDB.addNewUser(socket.id, usrName);
-            emitInfoAboutNewUser(usrName);
-            emitUsersList();
             fn(true);
         } else if(usersDB.socketIdExist(socket.id)) {
             console.log('exist in db');
@@ -96,12 +92,12 @@ io.sockets.on('connection', function(socket) {
         }
     });
 
-    socket.on('reconnectUser', function(data){
-        console.log('reconnecting user', data.id, data.userName);
-        usersDB.addReconnectedUser(socket.id, data);
-        emitInfoAboutNewUser(data.userName);
-        emitUsersList();
-    });
+    // socket.on('reconnectUser', function(data){
+    //     console.log('reconnecting user', data.id, data.userName);
+    //     usersDB.addReconnectedUser(socket.id, data);
+    //     emitInfoAboutNewUser(data.userName);
+    //     emitUsersList();
+    // });
 
     socket.on('logoutUser', function (id) {
         console.log('logoutUser...');
@@ -114,6 +110,13 @@ io.sockets.on('connection', function(socket) {
         }
         usersDB.removeIdFromTmp(id);
         socket.disconnect();
+    })
+
+    socket.on('fetchUserData', function(data){
+        if(data != null){
+          emitInfoAboutNewUser(data.userName);
+          emitUsersList();
+        }
     })
 
 
@@ -186,23 +189,22 @@ io.sockets.on('connection', function(socket) {
 var emitInfoAboutNewUser = function (uName) {
     console.log('....emitting info about new user');
     var list = usersDB.getList();
-    list.forEach(function(user){
-        io.sockets.sockets[user.id].emit('newUserJoin', {
+    var clients = io.sockets.clients();
+    clients.forEach(function(client){
+        io.sockets.sockets[client.id].emit('newUserJoin', {
             "userName": uName
             ,"amount": list.length
-            ,"userColor": user.color
-            ,'id': user.id
         });
-        //io.sockets.sockets[user.id].emit('newUserJoin', uName);
     });
 }
 
 var emitUsersList = function () {
     console.log('....emitting users list')
     var list = usersDB.getList();
+    var clients = io.sockets.clients();
     if(list.length > 0){
-        list.forEach(function(user){
-            io.sockets.sockets[user.id].emit('usersList', list);
+        clients.forEach(function(client){
+            io.sockets.sockets[client.id].emit('usersList', list);
         });
     }
 }

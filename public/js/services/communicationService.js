@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('FunWithAngular.services')
- 	.factory('SocketConn', function($timeout, $q, $http, $location, $rootScope, socket, localStorageService){
+ 	.factory('SocketConn', function($timeout, $q, $http, $location, $rootScope, socket){
  		
  		var usersList,
  			newJoiner,
@@ -17,18 +17,10 @@ angular.module('FunWithAngular.services')
 
  		socket.on('newUserJoin', function(data){
  			newJoiner = data.userName;
- 			localStorageService.add('user', JSON.stringify(data));
  			amount = data.amount;
  			//$rootScope.$apply();
  		})
-
-
- 		socket.on('error', function(error){
- 			if(error.userNameInUse && error.userNameInUse === true){
- 				isAnyError = true;
- 			}
- 		});
-
+ 		
  		return {
 			addNewUser: function(usrName){
 				console.log('emit add new user');
@@ -52,30 +44,30 @@ angular.module('FunWithAngular.services')
 				return defer.promise;
 			},
             
-            isAuthenticated : function(destPath){
-              var defer = $q.defer();
-              $http.get('/auth').success(function(data, status){
-                if(data.isAuthenticated === true && destPath === '/chat')
-                  defer.resolve(data.isAuthenticated)
-                else if(data.isAuthenticated === true && destPath === '/'){
-                  defer.reject(data.isAuthenticated)
-                  $location.path('/chat');
-                } else if(data.isAuthenticated === false && destPath === '/chat'){
-                  defer.reject(data.isAuthenticated)
-                  $location.path('/');
-                } else if(data.isAuthenticated === false && destPath === '/'){
-                  defer.resolve(data.isAuthenticated)
-                }
-              })
-              
-              return defer.promise;
-            },
-
- 			reconnectUser : function (usrData) {
- 				console.log('emit for reconnectUser');
- 				socket.emit('reconnectUser', usrData);
- 				myUsrName = usrData.userName;
- 			},
+      isAuthenticated : function(destPath){
+        var defer = $q.defer();
+        var user;
+        $http.get('/auth').success(function(data, status){
+          if(data.isAuthenticated === true && destPath === '/chat'){
+          	console.log("data: ", data);
+          	user = data.user;
+            defer.resolve(data)
+          } else if(data.isAuthenticated === true && destPath === '/'){
+            defer.reject(data)
+            $location.path('/chat');
+          } else if(data.isAuthenticated === false && destPath === '/chat'){
+            defer.reject(data)
+            $location.path('/');
+          } else if(data.isAuthenticated === false && destPath === '/'){
+            defer.resolve(data)
+          }
+        })
+        
+        return {
+        	'promise' : defer.promise,
+        	'user'	: user
+        }
+      },
 
  			logoutUser : function (id) {
  				console.log('emit for logout user');
@@ -104,6 +96,10 @@ angular.module('FunWithAngular.services')
  				console.log('setUsrName' + name)
  				myUsrName = name;
  			},
+
+ 			fetchUserData: function(userData){
+ 				socket.emit('fetchUserData', userData);
+ 			}
  		}
 
  		//Socket listeneres

@@ -44,11 +44,11 @@ var UsersDB = function () {
     }
 
     that.getList = function() {
-        console.log('#######');
-        console.log(that.users);
-        console.log('----------');
-        console.log(idsForVerify);
-        console.log('#######');
+        // console.log('#######');
+        // console.log(that.users);
+        // console.log('----------');
+        // console.log(idsForVerify);
+        // console.log('#######');
         return that.users;
     }
 
