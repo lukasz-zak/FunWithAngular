@@ -4,7 +4,7 @@ br
   form.form-horizontal(name='loginForm', ng-submit='sendForm()')
     .control-group
       - if (user)
-        h1 Hello! #{user.userName}
+        h1 Hello!
       - else
         h1 Hello! Anon -.-
       h5 Type your nick below and click 'LogIn'
@@ -13,15 +13,6 @@ br
     .control-group
       button.btn.btn-large.btn-info(type='submit', ng-disabled='myForm.$invalid', ng:class='loginFormValid')
         | LogIn
-  form(action='/login', method='post')
-    div
-      label Username:
-      input(type='text', name='username')
-    div
-      label Password:
-      input(type='hidden', name='password', value='pass')
-    div
-      input(type='submit', value='Log In')
 
 div(modal='shouldBeOpen', close='close()', options='opts')
   div.modal-header
