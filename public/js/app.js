@@ -6,28 +6,24 @@ angular.module('FunWithAngular.directives', []);
 
 angular.module('FunWithAngular', ['ui', 'LocalStorageModule', 'FunWithAngular.services', 'ui.bootstrap'])
   .config(function ($routeProvider, $locationProvider) {
-
+      
+    var authResolver = function(SocketConn, $location){
+      return SocketConn.isAuthenticated($location.path())
+    }
+    
     $routeProvider
       .when('/', {
         templateUrl: 'partials/chatLogin',
-        controller: 'chatLoginCtrl'
+        controller: 'chatLoginCtrl',
+        resolve : {
+          auth : authResolver
+        }
       })
       .when('/chat', {
         templateUrl: 'partials/chatMain',
         controller: 'ChatCtrl',
         resolve: {
-          authResolver: function($q, $location, $http, SocketConn){
-            var defer = $q.defer();
-            $http.get('/auth').success(function(data, status){
-              console.log(data);
-              console.log(status);
-              if(data.isAuthenticated === true)
-                defer.resolve();
-              else{
-                $location.path('/');
-              }
-            })
-          }
+          auth : authResolver
         }
       })
       .when('/main',{
@@ -44,18 +40,4 @@ angular.module('FunWithAngular', ['ui', 'LocalStorageModule', 'FunWithAngular.se
       $locationProvider.html5Mode(false);
   }).run(function($rootScope, $http, $location, SocketConn, localStorageService){
     console.log('AppRun!');
-
-    $rootScope.$watch(function () {
-      return $location.path();
-    }, function (newLocation, oldLocation) {
-      if(oldLocation === '/' ||  oldLocation === ''){
-        $http.get('/auth').success(function(data, status){
-          if(data.isAuthenticated === true)
-            $location.path('/chat');
-        });
-      } 
-      //else if(oldLocation === '/chat' && newLocation === '/'){
-      //  $location.path('/chat');
-      }
-    }, true);
   });

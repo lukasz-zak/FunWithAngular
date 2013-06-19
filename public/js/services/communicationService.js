@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('FunWithAngular.services')
- 	.factory('SocketConn', function($timeout, $q, $rootScope, socket, localStorageService){
+ 	.factory('SocketConn', function($timeout, $q, $http, $location, $rootScope, socket, localStorageService){
  		
  		var usersList,
  			newJoiner,
@@ -51,6 +51,25 @@ angular.module('FunWithAngular.services')
 				});
 				return defer.promise;
 			},
+            
+            isAuthenticated : function(destPath){
+              var defer = $q.defer();
+              $http.get('/auth').success(function(data, status){
+                if(data.isAuthenticated === true && destPath === '/chat')
+                  defer.resolve(data.isAuthenticated)
+                else if(data.isAuthenticated === true && destPath === '/'){
+                  defer.reject(data.isAuthenticated)
+                  $location.path('/chat');
+                } else if(data.isAuthenticated === false && destPath === '/chat'){
+                  defer.reject(data.isAuthenticated)
+                  $location.path('/');
+                } else if(data.isAuthenticated === false && destPath === '/'){
+                  defer.resolve(data.isAuthenticated)
+                }
+              })
+              
+              return defer.promise;
+            },
 
  			reconnectUser : function (usrData) {
  				console.log('emit for reconnectUser');
