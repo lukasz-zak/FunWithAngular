@@ -121,27 +121,7 @@ io.sockets.on('connection', function(socket) {
 
 
 
-    socket.on('set_username', function(userName) {
-        console.info('set username:', userName);
-        console.info('for id:', socket.id);
-        console.log("========================================");
 
-        if (usersDB.nameNotExist(userName)) {
-            console.log('//userNotExist');
-
-            usersDB.addNewUser(socket.id, userName);
-            userNameAvailable(socket.id, userName);
-            userJoined(userName);
-        }
-        else if (usersDB.socketIdExist(socket.id)) {
-            socketsOfClients[socket.id] = userName;
-            userNameAvailable(socket.id, userName);
-            userJoined(userName);
-        }
-        else {
-            userNameAlreadyInUse(socket.id, userName);
-        }
-    });
     socket.on('message', function(msg) {
         var srcUser;
         if (msg.inferSrcUser) {
