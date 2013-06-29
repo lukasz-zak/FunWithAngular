@@ -7,9 +7,10 @@ angular.module('FunWithAngular.directives', []);
 angular.module('FunWithAngular', ['ui', 'LocalStorageModule', 'FunWithAngular.services', 'ui.bootstrap'])
   .config(function ($routeProvider, $locationProvider) {
       
-    var authResolver = function(SocketConn, $location){
+    var authResolver = function(SocketConn, $location, $rootScope){
       var auth = SocketConn.isAuthenticated($location.path());
       auth.promise.then(function(data){
+        $rootScope.me = data.user;
         SocketConn.fetchUserData(data.user);
         return auth.promise;
       })

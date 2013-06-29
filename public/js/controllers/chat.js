@@ -7,7 +7,6 @@ angular.module('FunWithAngular')
   $scope.usersAmount = 0;
   $scope.usersListPartial = '/partials/usersList';
   $scope.usersList = $scope.socketConnService.getUsers();
-  $scope.myUserName = $scope.socketConnService.getMyUsrName();
 
     $scope.logout = function(e){
     	e.preventDefault();
@@ -17,7 +16,8 @@ angular.module('FunWithAngular')
 
     //to check if user on list is me or not
     $scope.checkIfMe = function(index){
-    	if($scope.usersList[index].userName === $scope.socketConnService.getMyUsrName())
+        console.log($scope);
+        if($scope.usersList[index].userName === $scope.$root.me.userName)
     		return 'itsMe';
     	else
     		return '';

@@ -86,7 +86,7 @@ io.sockets.on('connection', function(socket) {
         } else if(usersDB.socketIdExist(socket.id)) {
             console.log('exist in db');
         } else{
-            userNameAlreadyInUse(socket.id, usrName);
+            //userNameAlreadyInUse(socket.id, usrName);
             console.log('//userEXIST');
             fn(false);
         }
@@ -155,13 +155,13 @@ io.sockets.on('connection', function(socket) {
 
     socket.on('disconnect', function() {
         console.log('//userDisconnect')
-        // var usr = usersDB.findUserById(socket.id);
-        // console.log('urs: ', usr);
-        // if(usr !== undefined){
-        //     usersDB.removeUser(socket.id);
-        //     userLeft(usr.userName);
-        //     emitUsersList();
-        // }
+         // var usr = usersDB.findUserById(socket.id);
+         // console.log('urs: ', usr);
+         // if(usr !== undefined){
+         //     usersDB.removeUser(socket.id);
+         //     userLeft(usr.userName);
+         //     emitUsersList();
+         // }
     })
 })
 

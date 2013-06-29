@@ -72,7 +72,6 @@ angular.module('FunWithAngular.services')
  			logoutUser : function (id) {
  				console.log('emit for logout user');
  				//socket.emit('logoutUser', id);
- 				socket.removeAllListeners();
  			},
 
  			getUsersAmount: function(){
