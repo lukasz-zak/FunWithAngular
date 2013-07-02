@@ -15,26 +15,22 @@ var UsersDB = function () {
         that.getList();
     }
 
-    that.addReconnectedUser = function (id, data) {
-        idsForVerify.forEach(function(oldId){
-            if(data.id === oldId){
-                that.users.push({
-                    'id'        : id,
-                    'userName'  : data.userName,
-                    'color'     : data.userColor
-                });
-                idsForVerify.push(id);
-                return false;
-            };
-        });
-
-        var index = idsForVerify.indexOf(data.id);
-        idsForVerify.splice(index, 1);
+    that.logoutUser = function (user) {
+        console.log("user to logout", user);
+        if(that.removeUser(user))
+          return true;
+        else
+          return false;
     }
 
-    that.removeUser = function(id){
-        console.log('@: removing user with id: ' + id);
-        that.users.pop(that.findUserById(id));
+    that.removeUser = function(user){
+        console.log('@: removing user');
+        if(user){
+          that.users.pop(user);
+          return true;
+        }else{
+          return false;
+        }
     }
 
     that.removeIdFromTmp = function(id){
@@ -44,11 +40,6 @@ var UsersDB = function () {
     }
 
     that.getList = function() {
-        // console.log('#######');
-        // console.log(that.users);
-        // console.log('----------');
-        // console.log(idsForVerify);
-        // console.log('#######');
         return that.users;
     }
 
@@ -73,6 +64,10 @@ var UsersDB = function () {
             }
         });
         return fn(null, user);
+    }
+
+    that.updateSocketID = function (user, socketID) {
+        that.users[user.storeId - 1].id = socketID;
     }
 
 

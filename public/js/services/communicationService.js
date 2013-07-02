@@ -7,7 +7,7 @@ angular.module('FunWithAngular.services')
  			newJoiner,
  			myUsrName,
  			amount,
- 			getCookies;
+      userWhoLeft;
 
  		socket.on('usersList', function(data){
  			usersList = data;
@@ -20,6 +20,11 @@ angular.module('FunWithAngular.services')
  			amount = data.amount;
  			//$rootScope.$apply();
  		})
+
+    socket.on('userLeft', function (data) {
+      console.log("SockOn => UserLeft:", data);
+      userWhoLeft = data;
+    })
  		
  		return {
 			addNewUser: function(usrName){
@@ -52,6 +57,7 @@ angular.module('FunWithAngular.services')
           	console.log("data: ", data);
           	user = data.user;
             defer.resolve(data)
+            socket.emit('updateSocketID', data.user);
           } else if(data.isAuthenticated === true && destPath === '/'){
             defer.reject(data)
             $location.path('/chat');
@@ -69,9 +75,13 @@ angular.module('FunWithAngular.services')
         }
       },
 
- 			logoutUser : function (id) {
- 				console.log('emit for logout user');
- 				//socket.emit('logoutUser', id);
+ 			logoutUser : function () {
+        $http.get('/logout').success(function(data, status){
+          if(data.removed){
+            newJoiner = null;
+            usersList = [];
+          }
+        });
  			},
 
  			getUsersAmount: function(){
@@ -80,11 +90,6 @@ angular.module('FunWithAngular.services')
 
  			getUsers: function () {
  				return usersList;
- 			},
-
- 			getMyUsrName: function () {
- 				console.log('getMyUsrName')
- 				return myUsrName;
  			},
 
  			getNewJoiner : function(){
@@ -98,48 +103,11 @@ angular.module('FunWithAngular.services')
 
  			fetchUserData: function(userData){
  				socket.emit('fetchUserData', userData);
- 			}
+ 			},
+
+      getNameOfLeaver: function () {
+        return userWhoLeft;
+      }
  		}
-
- 		//Socket listeneres
-	  	//=============================================
-
-	 //  	socket.on('disconnect', function(){
-		//     console.log('disconnected !!')
-		//     if(myUserName && myUserName.length > 0) {
-		//         socket.emit('set_username', myUserName);
-		//     }
-		// });
-
-		// socket.on('userJoined', function(msg) {
-	 //        appendNewUser(msg.userName);
-	 //        setUsersAmount(msg.amount);
-	 //    });
-
-	 //    socket.on('userLeft', function(msg) {
-	 //        handleUserLeft(msg);
-	 //    });
-
-	 //    socket.on('message', function(msg) {
-	 //        appendNewMessage(msg);
-	 //    });
-
-	 //    socket.on('welcome', function(msg) {
-	 //        $scope.userName = "Hello " + msg.userName;
-	 //        $('form').hide();
-	 //        $('.msgWindow').removeClass('hidden');
-	        
-	 //        setFeedback("Username available. You can begin chatting.", 'success');
-	        
-	 //        setCurrentUsers(msg.currentUsers);
-	 //        enableUsernameField(false);
-	 //    });
-
-	 //    socket.on('error', function(msg) {
-	 //        if (msg.userNameInUse) {
-	 //            setFeedback("Username already in use. Try another name.", 'error');
-	 //            $('button#startChat').text('Start');
-	 //        }
-	 //    });
 
 	});

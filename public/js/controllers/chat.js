@@ -1,32 +1,31 @@
 'use strict';
 
 angular.module('FunWithAngular')
-  .controller('ChatCtrl', function ($scope, $rootScope, SocketConn, Users, $location) {
+  .controller('ChatCtrl', function ($scope, $rootScope, SocketConn, $location) {
 
 	$scope.socketConnService = SocketConn;
   $scope.usersAmount = 0;
   $scope.usersListPartial = '/partials/usersList';
-  $scope.usersList = $scope.socketConnService.getUsers();
 
-    $scope.logout = function(e){
-    	e.preventDefault();
-    	console.log('logout');
-    	$location.url('/logout');
-    }
+  $scope.logout = function(e){
+  	e.preventDefault();
+  	console.log('logout');
+  	$location.url('/logout');
+  }
 
-    //to check if user on list is me or not
-    $scope.checkIfMe = function(index){
-        console.log($scope);
-        if($scope.usersList[index].userName === $scope.$root.me.userName)
-    		return 'itsMe';
-    	else
-    		return '';
-    }
+  //to check if user on list is me or not
+  $scope.checkIfMe = function(index){
+    if(!angular.isUndefined($scope.usersList) 
+        && $scope.usersList[index].userName === $scope.me.userName)
+  		return 'itsMe';
+  	else
+  		return '';
+  }
 
 	$scope.$watch('socketConnService.getNewJoiner()', function(newVal, oldVal){
 		console.group('watchingNewJoiner');
 		console.log(newVal, oldVal);
-		if(newVal !== undefined){
+		if(newVal !== undefined && newVal != null ){
 			console.log("watching new joiner: " + newVal);
 			$scope.usersAmount = $scope.socketConnService.getUsersAmount();
 		    var msgForChat = {
@@ -51,6 +50,25 @@ angular.module('FunWithAngular')
 			$scope.usersAmount = newVal.length;
 		}
 		console.groupEnd('watchingGetUsers');
+  }, true);
+
+  
+  $scope.$watch('socketConnService.getNameOfLeaver()', function(newVal, oldVal){
+    console.group('watchingNameOfLeaver');
+    console.log(newVal, oldVal);
+    if(newVal !== undefined){
+      $scope.usersAmount = newVal.amount;
+      var msgForChat = {
+          "source": {
+            'userName': 'SYSTEM'
+          },
+          "message": newVal.userName +" has left the chat.",
+          "target": 'All',
+          "userColor" : 'orange'
+        };
+      appendNewMessage(msgForChat);
+    }
+    console.groupEnd('watchingNameOfLeaver');
   }, true);
 
   var hidden = 'hidden';
@@ -311,10 +329,8 @@ angular.module('FunWithAngular')
   		});
   }
     
-}).controller('chatLogoutCtrl', function($location, localStorageService, SocketConn){
-	var usrDataFromLS = JSON.parse(localStorageService.get('user'));
-	SocketConn.logoutUser(usrDataFromLS.id);
-	localStorageService.remove('user');
+}).controller('chatLogoutCtrl', function($location, $scope, SocketConn){
+	SocketConn.logoutUser();
 
 	$location.path('/');
 })

@@ -10,9 +10,6 @@ var http    = require('http'),
     auth = require('./modules/auth.js');
 
 
-//usersDB.addNewUser('adadda@#Edadq', 'Woo');
-
-
 app.configure(function() {
   app.set('views', __dirname + '/views');
   app.set('view engine', 'jade');
@@ -36,15 +33,22 @@ app.get('/auth', function(req, res, next) {
       if (req.isAuthenticated()) { return next(); }
       else res.json({'isAuthenticated' : false});
   }, function(req, res){
-      console.log('isAuthenticated');
-    var users = usersDB.getList();
-    console.log('================USER: ', req.user);
+    console.log('isAuthenticated');
     res.json({'isAuthenticated' : true, 'user' : req.user});
 });
 
 
 app.get('/login', function(req, res){
-  res.render('partials/main', { user: req.user, message: req.flash('error') });
+  res.render('partials/chatLogin', { user: req.user, message: req.flash('error') });
+});
+
+app.get('/logout', function(req, res){
+  if(usersDB.logoutUser(req.user)){
+      req.session.destroy();
+      res.json({'removed' : true, 'userName' : req.user.userName});   
+      userLeft(req.user.userName);
+  }else
+      res.json({'removed' : false});
 });
 
 app.post('/user/login', 
@@ -61,13 +65,9 @@ app.get('/partials/:view', function(req, res){
     console.log('-------name-' + name);
     res.render('partials/' + name, { user: req.user, message: req.flash('error') });
 }).get('/', function(req, res){
-    console.log('/main')
+    console.log('/index')
     res.render('index')
 })
-// .get('*', function(req, res){
-//     console.log('***')
-//     res.render('index')
-// });
 
 
 io.set('log level', 2);
@@ -92,13 +92,6 @@ io.sockets.on('connection', function(socket) {
         }
     });
 
-    // socket.on('reconnectUser', function(data){
-    //     console.log('reconnecting user', data.id, data.userName);
-    //     usersDB.addReconnectedUser(socket.id, data);
-    //     emitInfoAboutNewUser(data.userName);
-    //     emitUsersList();
-    // });
-
     socket.on('logoutUser', function (id) {
         console.log('logoutUser...');
         var usr = usersDB.findUserById(id);
@@ -119,7 +112,9 @@ io.sockets.on('connection', function(socket) {
         }
     })
 
-
+    socket.on('updateSocketID', function (user) {
+        usersDB.updateSocketID(user, socket.id);
+    })
 
 
     socket.on('message', function(msg) {
@@ -155,13 +150,7 @@ io.sockets.on('connection', function(socket) {
 
     socket.on('disconnect', function() {
         console.log('//userDisconnect')
-         // var usr = usersDB.findUserById(socket.id);
-         // console.log('urs: ', usr);
-         // if(usr !== undefined){
-         //     usersDB.removeUser(socket.id);
-         //     userLeft(usr.userName);
-         //     emitUsersList();
-         // }
+        //not implemented
     })
 })
 
@@ -208,5 +197,29 @@ function userLeft(uName) {
         "amount": usersDB.getList().length
     });
 }
+
+function cleanUsersList () {
+    var clients = io.sockets.clients();
+    var list = usersDB.getList();
+
+    if(clients.length !== list.length){
+        list.forEach(function (user) {
+            var flag = true;
+            clients.forEach(function (client) {
+                if(user.id === client.id){
+                    flag = false;
+                    return;
+                }
+            });
+            if(flag){
+                usersDB.removeUser(user);
+                userLeft(user.userName);
+                emitUsersList();
+            }
+        })
+    }
+}
+
+setInterval(cleanUsersList, 30000);
 
 server.listen(process.env.PORT || 9000);

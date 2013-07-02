@@ -31,12 +31,8 @@ angular.module('FunWithAngular', ['ui', 'LocalStorageModule', 'FunWithAngular.se
           auth : authResolver
         }
       })
-      .when('/main',{
-        templateUrl: 'partials/main',
-        controller: 'MainCtrl'
-      })
       .when('/logout',{
-        templateUrl: 'partials/main',
+        templateUrl: 'partials/chatLogin',
         controller: 'chatLogoutCtrl'
       })
       .otherwise({
