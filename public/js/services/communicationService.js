@@ -7,25 +7,32 @@ angular.module('FunWithAngular.services')
  			newJoiner,
  			myUsrName,
  			amount,
-      userWhoLeft;
+      userWhoLeft,
+      lastMessage;
 
+
+    //Listeners for sockets
  		socket.on('usersList', function(data){
  			usersList = data;
  			console.log('usersList: ', usersList);
- 			//$rootScope.$apply();
  		})
 
  		socket.on('newUserJoin', function(data){
  			newJoiner = data.userName;
  			amount = data.amount;
- 			//$rootScope.$apply();
  		})
 
     socket.on('userLeft', function (data) {
       console.log("SockOn => UserLeft:", data);
       userWhoLeft = data;
     })
+
+    socket.on('newMessage', function(msg){
+      console.log("receive new msg. This is msg obj: ", msg);
+      lastMessage = msg;
+    });
  		
+
  		return {
 			addNewUser: function(usrName){
 				console.log('emit add new user');
@@ -96,6 +103,16 @@ angular.module('FunWithAngular.services')
  				return newJoiner;
  			},
 
+      getNameOfLeaver: function () {
+        var info = userWhoLeft;
+        userWhoLeft = null;
+        return info;
+      },
+
+      getLastMsg : function () {
+        return lastMessage;
+      },
+
  			setMyUsrName: function (name) {
  				console.log('setUsrName' + name)
  				myUsrName = name;
@@ -105,8 +122,8 @@ angular.module('FunWithAngular.services')
  				socket.emit('fetchUserData', userData);
  			},
 
-      getNameOfLeaver: function () {
-        return userWhoLeft;
+      sendMessage: function (msgObj) {
+        socket.emit('sendMessage', msgObj);
       }
  		}
 

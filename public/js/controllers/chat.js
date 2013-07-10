@@ -1,9 +1,9 @@
 'use strict';
 
-angular.module('FunWithAngular')
-  .controller('ChatCtrl', function ($scope, $rootScope, SocketConn, $location) {
+angular.module('FunWithAngular').controller('ChatCtrl',
+	function ($scope, $rootScope, SocketConn, $location) {
 
-	$scope.socketConnService = SocketConn;
+  $scope.socketConnService = SocketConn;
   $scope.usersAmount = 0;
   $scope.usersListPartial = '/partials/usersList';
 
@@ -22,26 +22,24 @@ angular.module('FunWithAngular')
   		return '';
   }
 
-	$scope.$watch('socketConnService.getNewJoiner()', function(newVal, oldVal){
-		console.group('watchingNewJoiner');
-		console.log(newVal, oldVal);
-		if(newVal !== undefined && newVal != null ){
-			console.log("watching new joiner: " + newVal);
-			$scope.usersAmount = $scope.socketConnService.getUsersAmount();
-		    var msgForChat = {
-	        "source": {
-	        	'userName': 'SYSTEM'
-	        },
-	        "message": newVal +" join to chat.",
-	        "target": 'All',
-	        "userColor" : 'green'
-	    	};
-			appendNewMessage(msgForChat);
-		}
-		console.groupEnd('watchingNewJoiner');
-    }, true);
+  $scope.$watch('socketConnService.getNewJoiner()', function(newVal, oldVal){
+	console.group('watchingNewJoiner');
+	console.log(newVal, oldVal);
+	if(newVal !== undefined && newVal != null ){
+	  console.log("watching new joiner: " + newVal);
+	  $scope.usersAmount = $scope.socketConnService.getUsersAmount();
+	  var msgForChat = {
+	    "authorName" : 'SYSTEM',
+	    "message": newVal +" join to chat.",
+	    "target": 'All',
+	    "userColor" : 'green'
+	  };
+	  appendNewMessage(msgForChat);
+	}
+	console.groupEnd('watchingNewJoiner');
+  }, true);
 
-  $scope.$watch('socketConnService.getUsers()', function(newVal, oldVal){
+  $scope.$watch('socketConnService.getUsers()', function (newVal, oldVal){
   	console.group('watchingGetUsers');
   	console.log(newVal, oldVal);
 		if(newVal !== undefined){
@@ -53,15 +51,13 @@ angular.module('FunWithAngular')
   }, true);
 
   
-  $scope.$watch('socketConnService.getNameOfLeaver()', function(newVal, oldVal){
+  $scope.$watch('socketConnService.getNameOfLeaver()', function (newVal, oldVal){
     console.group('watchingNameOfLeaver');
     console.log(newVal, oldVal);
-    if(newVal !== undefined){
+    if(newVal){
       $scope.usersAmount = newVal.amount;
       var msgForChat = {
-          "source": {
-            'userName': 'SYSTEM'
-          },
+          "authorName" : 'SYSTEM',
           "message": newVal.userName +" has left the chat.",
           "target": 'All',
           "userColor" : 'orange'
@@ -71,22 +67,33 @@ angular.module('FunWithAngular')
     console.groupEnd('watchingNameOfLeaver');
   }, true);
 
+  $scope.$watch('socketConnService.getLastMsg()', function (newVal, oldVal) {
+  	console.group('waatchningLastMsg');
+  	console.log("msgObj: ", newVal);
+
+  	if(newVal !== undefined){
+  		appendNewMessage(newVal)
+  	}
+
+  	console.groupEnd('waatchningLastMsg');
+  }, true);
+
   var hidden = 'hidden';
 
-	function onchange (evt) {
-	    var v = 'visible', h = 'hidden',
-	        evtMap = { 
-	            focus:v, focusin:v, pageshow:v, blur:h, focusout:h, pagehide:h 
-	        };
+  function onchange (evt) {
+    var v = 'visible', h = 'hidden',
+        evtMap = { 
+	      focus:v, focusin:v, pageshow:v, blur:h, focusout:h, pagehide:h 
+	    };
 
-	    evt = evt || window.event;
-	    if (evt.type in evtMap)
-	        document.body.className = evtMap[evt.type];
-	    else        
-	        document.body.className = this[hidden] ? "hidden" : "visible";
-	}
+	evt = evt || window.event;
+	if (evt.type in evtMap)
+	  document.body.className = evtMap[evt.type];
+	else        
+	  document.body.className = this[hidden] ? "hidden" : "visible";
+  }
 
-	function isWindowIsActive(){
+  function isWindowIsActive(){
     // Standards:
     if (hidden in document)
       document.addEventListener("visibilitychange", onchange);
@@ -102,15 +109,13 @@ angular.module('FunWithAngular')
     // All others:
     else
       window.onpageshow = window.onpagehide = window.onfocus = window.onblur = onchange;
-	}
+  }
 
-	function addAudioToPage(){
-	  $('<audio id="chatAudio"><source src="/sounds/notify.ogg" type="audio/ogg"><source src="notify.mp3" type="audio/mpeg"><source src="notify.wav" type="audio/wav"></audio>').appendTo('body');
-	}
+  function addAudioToPage(){
+    $('<audio id="chatAudio"><source src="/sounds/notify.ogg" type="audio/ogg"><source src="notify.mp3" type="audio/mpeg"><source src="notify.wav" type="audio/wav"></audio>').appendTo('body');
+  }
 
-
-
-	function enablePrivMsg(){
+  function enablePrivMsg(){
     $('#usersList span.user > button').on('click', function(e){
       var destUser = $(this).parent().attr('id').replace('user-', '');
       var target = 'user-' + destUser;
@@ -136,153 +141,124 @@ angular.module('FunWithAngular')
         $('#chatRooms a#'+targetTab).tab('show');
       }
     });
-	}
+  }
 
-	function enableUsernameField(enable) {
-	    $('input#userName').prop('disabled', !enable);
-	    if(enable)
-	        $('#startChat').removeClass('disabled');
-	    else
-	        $('#startChat').addClass('disabled');
-	}
+  function enableUsernameField(enable) {
+    $('input#userName').prop('disabled', !enable);
+	  if(enable)
+	    $('#startChat').removeClass('disabled');
+	  else
+	    $('#startChat').addClass('disabled');
+  }
 
-	function getMsgTime(){
-	    var d = new Date();
-	    var HH = d.getHours() < 10 ? "0" + d.getHours() : d.getHours();
-	    var MM = d.getMinutes() < 10 ? "0" + d.getMinutes() : d.getMinutes();
-	    var SS = d.getSeconds() < 10 ? "0" + d.getSeconds() : d.getSeconds();
-	    return HH + ":" + MM + ":" + SS;
-	}
+  function getMsgTime(){
+	var d = new Date();
+	var HH = d.getHours() < 10 ? "0" + d.getHours() : d.getHours();
+	var MM = d.getMinutes() < 10 ? "0" + d.getMinutes() : d.getMinutes();
+	var SS = d.getSeconds() < 10 ? "0" + d.getSeconds() : d.getSeconds();
+	return HH + ":" + MM + ":" + SS;
+  }
 
 	function chatStringCreateUrls(input){
-	    return input
-	        .replace(/<br>/gim, '\n')
-	        .replace(/(ftp|http|https|file):\/\/[\S]+(\b|$)/gim, '<a href="$&" class="my_link" target="_blank">$&</a>')
-	        .replace(/([^\/])(www[\S]+(\b|$))/gim, '$1<a href="http://$2" class="my_link" target="_blank">$2</a>')
-	        .replace(/\n/gim, '<br>');
+		return input
+				.replace(/<br>/gim, '\n')
+	      .replace(/(ftp|http|https|file):\/\/[\S]+(\b|$)/gim, '<a href="$&" class="my_link" target="_blank">$&</a>')
+	      .replace(/([^\/])(www[\S]+(\b|$))/gim, '$1<a href="http://$2" class="my_link" target="_blank">$2</a>')
+	      .replace(/\n/gim, '<br>');
 	}
 
 	function removeHtmlTags(input){
-	    return input.replace(/(<([^>]+)>)/ig,"");
+		return input.replace(/(<([^>]+)>)/ig,"");
 	}
 
 	function appendNewMessage(msg) {
-	    window.document.title = getMsgTime() + " " + msg.source.userName;
+	  window.document.title = getMsgTime() + " " + msg.authorName;
 	    
-	    var html
-	    var span = $("<span></span>");
-	    span.addClass('allMsg').css('color', msg.userColor);
+	  var html
+	  var span = $("<span></span>");
+	  span.addClass('allMsg').css('color', msg.userColor);
 	    
-	    var b = $("<b></b>");
-	    var user = b.append(" " + msg.source.userName);
+	  var b = $("<b></b>");
+	  var user = b.append(" " + msg.authorName);
+	  
+	  var timeTag = $("<code></code>");
+	  timeTag.append(getMsgTime());
 	    
-	    var timeTag = $("<code></code>");
-	    timeTag.append(getMsgTime());
-	    
-	    span.prepend(timeTag);
-	    span.append(user);
-	    span.append(": " + chatStringCreateUrls(removeHtmlTags(msg.message)));
-	    span.append("<br />");
-	    
-	    if (msg.target == "All") {
-	        html = span;
-	    }else {
-	        // It is a private message to me
-	        html = "<span class='privMsg'>" + msg.source + " (P) : " + msg.message + "</span><br/>";
-	    }
-	    $('.msgWindow').append(html);
-	    $('.msgWindow').animate({
-	        "scrollTop": $('.msgWindow')[0].scrollHeight
-	        }, "slow");
-	    if($('body').hasClass('hidden')){
-	        $('#chatAudio')[0].play();
-	        if(window.webkitNotifications !== undefined){
-	            if (window.webkitNotifications.checkPermission() == 0) {
-	                var notify = window.webkitNotifications.createNotification(
-	                    "http://www.w3.org/html/logo/downloads/HTML5_Logo_256.png",
-	                    msg.source,
-	                    msg.message);
-	                    
-	                notify.show(); // note the show()
-	                
-	                setTimeout(function() {
-	                    notify.close();
-	                }, 5000);
-	            }
-	        }
-	    }
-	}
+	  span.prepend(timeTag);
+	  span.append(user);
+	  span.append(": " + chatStringCreateUrls(removeHtmlTags(msg.message)));
+	  span.append("<br />");
+	  
+	  if (msg.target == "All")
+	      html = span;
+	  else
+	    html = "<span class='privMsg'>" + msg.source + " (P) : " + msg.message + "</span><br/>";
+	  
+	  $('.msgWindow').append(html);
 
-	function handleUserLeft(msg) {
-	    Users.removeByName(msg.userName);
-	    var msgForChat = {
-	            "source": 'SYSTEM',
-	            "message": msg.userName+" has left chat.",
-	            "target": 'All',
-	            "userColor" : 'red'
-	    };
-	    appendNewMessage(msgForChat)
-	    setUsersAmount(msg.amount);
-	}
+	  $('.msgWindow').animate({
+	    "scrollTop"	: $('.msgWindow')[0].scrollHeight
+	  }, "slow");
 
-	function setFeedback(msg, type) {
-	    var alertCont = $("<div class='alert fade in'>"
-	            + "<a class='close' data-dismiss='alert' href='#'>&times;</a>"
-	            + "<em></em>"
-	            + "</div>");
-	    
-	    alertCont.find('em').html(msg);
-	    alertCont.addClass('alert-'+ type);
-	    $('#alertsDiv').append(alertCont);
-	    alertCont.fadeIn().delay(10000).fadeOut('slow', function(){
-	        $(this).remove();
-	    });
-	}
+	  if($('body').hasClass('hidden')){
+	    $('#chatAudio')[0].play();
 
-	function setUsersAmount(amount){
-	    $scope.usersAmount = amount;
-	}
-
-	function setUsername(usrName) {
-	    //myUserName = $('input#userName').val();
-	    //$('button#startChat').text('Please wait...');
-	    socket.emit('set_username', usrName);
+	    if(window.webkitNotifications !== undefined){
+	      if (window.webkitNotifications.checkPermission() == 0) {
+	        var notify = window.webkitNotifications.createNotification(
+	          "http://www.w3.org/html/logo/downloads/HTML5_Logo_256.png",
+	          msg.source,
+	          msg.message
+	        );
+	                   
+	        notify.show(); // note the show()
+	               
+	        setTimeout(function() {
+	          notify.close();
+          }, 5000);
+        }
+      }
+	  }
 	}
 
 	function sendMessage(assignedID) {
-	    if(assignedID !== ''){
-	        var trgtUser = assignedID.replace('#prv-user-', '')
-	    }
-	    socket.emit('message', {
-	        "inferSrcUser": true,
-	        "source": "",
-	        "message": $('input'+assignedID+'.msgInput').val(),
-	        "target": trgtUser || 'All'
-	    });
-	    $('input.msgInput').val("");
+		if(assignedID !== ''){
+			var trgtUser = assignedID.replace('#prv-user-', '')
+	  }
+
+		var msgObj = {
+			"authorName"	: $scope.me.userName,
+	    "message"			: $('input'+assignedID+'.msgInput').val(),
+	    "target"			: trgtUser || 'All'
+	  };
+
+	  $scope.socketConnService.sendMessage(msgObj);
+	  $('input.msgInput').val("");
 	}
 
-	function inputEnterDetection(assignedID){
-      if(assignedID === undefined)
-          assignedID = '';
-      $('input'+assignedID+'.msgInput').keypress(function(e) {
-          if (e.keyCode == 13) {
-              sendMessage(assignedID);
-              e.stopPropagation();
-              e.stopped = true;
-              e.preventDefault();
-          }
-      });
+  function inputEnterDetection(assignedID){
+    if(assignedID === undefined)
+	    assignedID = '';
+    $('input'+assignedID+'.msgInput').keypress(function(e) {
+      if (e.keyCode == 13) {
+		    sendMessage(assignedID);
+		    e.stopPropagation();
+		    e.stopped = true;
+		    e.preventDefault();
+      }
+    });
   }
 
-    addAudioToPage();
-    isWindowIsActive();
-    inputEnterDetection()
+  addAudioToPage();
+  isWindowIsActive();
+  inputEnterDetection();
     
-    //Bootrap scripts
-    $(".alert").alert();
-  })
-.controller('chatLoginCtrl', function($q, $scope, $http, $location, SocketConn, localStorageService){
+  //Bootrap scripts
+  $(".alert").alert();
+
+
+}).controller('chatLoginCtrl',
+	function($q, $scope, $http, $location, SocketConn, localStorageService){
 
   $scope.close = function () {
     $scope.closeMsg = 'I was closed at: ' + new Date();
@@ -305,32 +281,33 @@ angular.module('FunWithAngular')
 
   $scope.sendForm = function(){
 
-  	SocketConn.addNewUser(this.loginInput)
-  		.then(function (result) {
-  			console.log(result);
-  			if(result.success)
-  				$http.post('/user/login/', {
-  					'username' : result.userName,
-  					'password' : 'pony'
-  				}).success(function(data, status){
-  					//success
-  					console.log(data)
-  					console.log(status);
-  					console.log('success with adding new User');
-  					if(data.user && data.user.id){
-  						SocketConn.setMyUsrName(data.user.userName);
-  						$location.path('/chat');
-  					}
-  				});
-  		}, function (result) {
-  			console.log('error!: ' + result);
-  			$scope.warning = result;
-  			$scope.shouldBeOpen = true;
-  		});
+	SocketConn.addNewUser(this.loginInput)
+		.then(function (result) {
+			console.log(result);
+			if(result.success)
+				$http.post('/user/login/', {
+					'username' : result.userName,
+					'password' : 'pony'
+				}).success(function(data, status){
+					//success
+					console.log(data)
+					console.log(status);
+					console.log('success with adding new User');
+					if(data.user && data.user.id){
+						SocketConn.setMyUsrName(data.user.userName);
+						$location.path('/chat');
+					}
+				});
+		}, function (result) {
+			console.log('error!: ' + result);
+			$scope.warning = result;
+			$scope.shouldBeOpen = true;
+		});
   }
     
-}).controller('chatLogoutCtrl', function($location, $scope, SocketConn){
-	SocketConn.logoutUser();
+}).controller('chatLogoutCtrl',
+	function($location, $scope, SocketConn){
 
+	SocketConn.logoutUser();
 	$location.path('/');
 })

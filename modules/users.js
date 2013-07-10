@@ -55,6 +55,7 @@ var UsersDB = function () {
 
     that.findUserByName = function (name, fn) {
         console.log('find user by name: ' + name);
+        console.log("all users", this.users);
         var user;
         that.users.forEach(function(usr) {
             console.log('usr : ' + usr.userName);

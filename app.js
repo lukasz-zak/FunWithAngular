@@ -117,35 +117,30 @@ io.sockets.on('connection', function(socket) {
     })
 
 
-    socket.on('message', function(msg) {
-        var srcUser;
-        if (msg.inferSrcUser) {
-            srcUser = usersDB.findUserById(socket.id);
-            console.log(srcUser);
-        }
-        else {
-            srcUser = msg.source;
-        }
+    socket.on('sendMessage', function(msg) {
+        usersDB.findUserByName(msg.authorName, function(zero, author){
+            console.log("user from callback", author);
 
-        if (msg.target == "All") {
-            // broadcast
-            io.sockets.emit('message', {
-                "source": srcUser,
-                "message": msg.message,
-                "target": msg.target,
-                "userColor" : srcUser.color
-            });
-        }
-        else {
-            // Look up the socket id
-            console.log('target: ' + msg.target);
-            console.log('clients: ' + clients[msg.target]);
-            io.sockets.sockets[clients[msg.target]].emit('message', {
-                "source": srcUser,
-                "message": msg.message,
-                "target": msg.target
-            });
-        }
+             if (msg.target == "All") {
+                // broadcast
+                console.log("emit newMsg....");
+                io.sockets.emit('newMessage', {
+                    "authorName"    : msg.authorName,
+                    "message"       : msg.message,
+                    "target"        : msg.target,
+                    "userColor"     : author.color
+                });
+            } else {
+                // Look up the socket id
+                console.log('target: ' + msg.target);
+                console.log('clients: ' + clients[msg.target]);
+                io.sockets.sockets[clients[msg.target]].emit('message', {
+                    "source": srcUser,
+                    "message": msg.message,
+                    "target": msg.target
+                });
+            }
+        });
     })
 
     socket.on('disconnect', function() {
