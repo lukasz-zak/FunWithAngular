@@ -23,6 +23,7 @@ input.msgInput{ width: 100%;}
 #usersList span{ display: block; margin-bottom: 5px;}
 
 span.user.itsMe{ color: green; font-weight: bold;}
-span.user button{ margin-left: 10px;}
+span.user > i {padding-left: 15px;}
+span.user button{ margin-left: 10px; float: right;}
 span.user:not(.itsMe):hover button{ display: inline-block;}
 .tab-content {overflow: initial !important;}

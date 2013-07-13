@@ -13,15 +13,6 @@ angular.module('FunWithAngular').controller('ChatCtrl',
   	$location.url('/logout');
   }
 
-  //to check if user on list is me or not
-  $scope.checkIfMe = function(index){
-    if(!angular.isUndefined($scope.usersList) 
-        && $scope.usersList[index].userName === $scope.me.userName)
-  		return 'itsMe';
-  	else
-  		return '';
-  }
-
   $scope.$watch('socketConnService.getNewJoiner()', function(newVal, oldVal){
   	console.group('watchingNewJoiner');
   	console.log(newVal, oldVal);

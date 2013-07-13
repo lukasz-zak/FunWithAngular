@@ -4,7 +4,7 @@ angular.module('FunWithAngular.services', ['btford.socket-io']);
 
 angular.module('FunWithAngular.directives', []);
 
-angular.module('FunWithAngular', ['ui', 'LocalStorageModule', 'FunWithAngular.services', 'ui.bootstrap'])
+angular.module('FunWithAngular', ['ui', 'LocalStorageModule', 'FunWithAngular.services', 'FunWithAngular.directives' ,'ui.bootstrap'])
   .config(function ($routeProvider, $locationProvider) {
       
     var authResolver = function(SocketConn, $location, $rootScope){

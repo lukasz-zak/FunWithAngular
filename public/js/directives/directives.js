@@ -1,6 +1,32 @@
-angular.module('FunWithAngular.directives')
-	.directive('enableNotif', function(){
+'use strict';
 
+angular.module('FunWithAngular.directives', [])
+
+  .directive('user', function($rootScope){
+    
+    return {
+      restrict : 'CA',
+      scope: false,
+      templateUrl : 'js/directives/templates/userTemp.html',
+      link : function (scope, element, attrs) {   
+        
+        if(!angular.isUndefined(scope.$parent.$parent.usersList) 
+            && scope.user.userName === $rootScope.me.userName)
+            
+        	element.addClass('itsMe');
+          
+          
+        scope.openPrvWindow = function(e){
+          console.warn('Sorry. This feature isn\'t yet implemented!');
+        };
+        
+      }
+    }
+    
+  })
+  
+  .directive('enableNotif', function(){
+    
 		return function(scope, element, attrs){
 
 			function checkNotificationPermission(){
