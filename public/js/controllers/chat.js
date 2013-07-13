@@ -73,15 +73,16 @@ angular.module('FunWithAngular').controller('ChatCtrl',
 
   function onchange (evt) {
     var v = 'visible', h = 'hidden',
-        evtMap = { 
-	      focus:v, focusin:v, pageshow:v, blur:h, focusout:h, pagehide:h 
-	    };
+      evtMap = { 
+      focus:v, focusin:v, pageshow:v, blur:h, focusout:h, pagehide:h 
+    };
 
-	evt = evt || window.event;
-	if (evt.type in evtMap)
-	  document.body.className = evtMap[evt.type];
-	else        
-	  document.body.className = this[hidden] ? "hidden" : "visible";
+    evt = evt || window.event;
+    if (evt.type in evtMap)
+      document.body.className = evtMap[evt.type];
+    else        
+      document.body.className = this[hidden] ? "hidden" : "visible";
+      
   }
 
   function isWindowIsActive(){
@@ -125,7 +126,6 @@ angular.module('FunWithAngular').controller('ChatCtrl',
               newTabContent.html($data);
               $('.tab-content').append(newTabContent);
               $('#chatRooms a#'+targetTab).tab('show');
-              enableMsgInput('enable');
               inputEnterDetection('#prv-' + target);
             });
       } else{
@@ -243,10 +243,7 @@ angular.module('FunWithAngular').controller('ChatCtrl',
   addAudioToPage();
   isWindowIsActive();
   inputEnterDetection();
-    
-  //Bootrap scripts
-  $(".alert").alert();
-
+  
 
 }).controller('chatLoginCtrl',
 	function($q, $scope, $http, $location, SocketConn, localStorageService){
