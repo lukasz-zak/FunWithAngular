@@ -23,20 +23,20 @@ angular.module('FunWithAngular').controller('ChatCtrl',
   }
 
   $scope.$watch('socketConnService.getNewJoiner()', function(newVal, oldVal){
-	console.group('watchingNewJoiner');
-	console.log(newVal, oldVal);
-	if(newVal !== undefined && newVal != null ){
-	  console.log("watching new joiner: " + newVal);
-	  $scope.usersAmount = $scope.socketConnService.getUsersAmount();
-	  var msgForChat = {
-	    "authorName" : 'SYSTEM',
-	    "message": newVal +" join to chat.",
-	    "target": 'All',
-	    "userColor" : 'green'
-	  };
-	  appendNewMessage(msgForChat);
-	}
-	console.groupEnd('watchingNewJoiner');
+  	console.group('watchingNewJoiner');
+  	console.log(newVal, oldVal);
+  	if(newVal !== undefined && newVal != null ){
+  	  console.log("watching new joiner: " + newVal);
+  	  $scope.usersAmount = $scope.socketConnService.getUsersAmount();
+  	  var msgForChat = {
+  	    "authorName" : 'SYSTEM',
+  	    "message": newVal +" join to chat.",
+  	    "target": 'All',
+  	    "userColor" : 'green'
+  	  };
+  	  appendNewMessage(msgForChat);
+  	}
+  	console.groupEnd('watchingNewJoiner');
   }, true);
 
   $scope.$watch('socketConnService.getUsers()', function (newVal, oldVal){
