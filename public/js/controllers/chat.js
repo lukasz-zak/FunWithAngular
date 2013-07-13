@@ -69,42 +69,12 @@ angular.module('FunWithAngular').controller('ChatCtrl',
   	console.groupEnd('waatchningLastMsg');
   }, true);
 
-  var hidden = 'hidden';
-
-  function onchange (evt) {
-    var v = 'visible', h = 'hidden',
-      evtMap = { 
-      focus:v, focusin:v, pageshow:v, blur:h, focusout:h, pagehide:h 
-    };
-
-    evt = evt || window.event;
-    if (evt.type in evtMap)
-      document.body.className = evtMap[evt.type];
-    else        
-      document.body.className = this[hidden] ? "hidden" : "visible";
-      
-  }
-
   function isWindowIsActive(){
-    // Standards:
-    if (hidden in document)
-      document.addEventListener("visibilitychange", onchange);
-    else if ((hidden = "mozHidden") in document)
-      document.addEventListener("mozvisibilitychange", onchange);
-    else if ((hidden = "webkitHidden") in document)
-      document.addEventListener("webkitvisibilitychange", onchange);
-    else if ((hidden = "msHidden") in document)
-      document.addEventListener("msvisibilitychange", onchange);
-    // IE 9 and lower:
-    else if ('onfocusin' in document)
-      document.onfocusin = document.onfocusout = onchange;
-    // All others:
-    else
-      window.onpageshow = window.onpagehide = window.onfocus = window.onblur = onchange;
+    return window.document.hasFocus();
   }
 
   function addAudioToPage(){
-    $('<audio id="chatAudio"><source src="/sounds/notify.ogg" type="audio/ogg"><source src="notify.mp3" type="audio/mpeg"><source src="notify.wav" type="audio/wav"></audio>').appendTo('body');
+    $('<audio id="chatAudio"><source src="sounds/notify.mp3" type="audio/mpeg"></audio>').appendTo('body');
   }
 
   function enablePrivMsg(){
@@ -191,7 +161,7 @@ angular.module('FunWithAngular').controller('ChatCtrl',
 	    "scrollTop"	: $('.msgWindow')[0].scrollHeight
 	  }, "slow");
 
-	  if($('body').hasClass('hidden')){
+	  if(isWindowIsActive()){
 	    $('#chatAudio')[0].play();
 
 	    if(window.webkitNotifications !== undefined){
