@@ -23,7 +23,11 @@
           a(href='#home', data-toggle='tab') Global
       .tab-content
         #home.tab-pane.active
-          .msgWindow.shadow.hidden
+          .msgWindow.shadow
+            span.allMsg(ng-animate="'animate'", style='color: {{msg.userColor}}', ng-repeat="msg in messages")
+              code {{msg.time}}
+              b {{" " + msg.authorName}}
+              span(ng-bind-html-unsafe='": " + msg.message')
           input.msgInput(type='text')
     .span2(ng-include='', src='usersListPartial')
   .row-fluid

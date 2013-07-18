@@ -27,10 +27,10 @@ angular.module('FunWithAngular.services')
       userWhoLeft = data;
     })
 
-    socket.on('newMessage', function(msg){
-      console.log("receive new msg. This is msg obj: ", msg);
-      lastMessage = msg;
-    });
+    // socket.on('newMessage', function(msg){
+    //   console.log("receive new msg. This is msg obj: ", msg);
+    //   lastMessage = msg;
+    // });
  		
 
  		return {
