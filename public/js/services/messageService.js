@@ -33,20 +33,11 @@ angular.module('FunWithAngular.services')
       msg.time = getMsgTime();
       msg.message = chatStringCreateUrls(removeHtmlTags(msg.message));
       messages.push(msg);
-    }
-
-    (function addAudioToPage(){
-      $('<audio id="chatAudio"><source src="sounds/notify.mp3" type="audio/mpeg"></audio>').appendTo('body');
-    })();
-
-    socket.on('newMessage', function(msg){
-      addNewMessage(msg);
-
       $('.msgWindow').animate({
         "scrollTop" : $('.msgWindow')[0].scrollHeight
       }, "slow");
 
-      if(isWindowIsActive()){
+      if(!isWindowIsActive()){
         $('#chatAudio')[0].play();
 
         if(window.webkitNotifications !== undefined){
@@ -65,6 +56,14 @@ angular.module('FunWithAngular.services')
           }
         }
       }
+    }
+
+    (function addAudioToPage(){
+      $('<audio id="chatAudio"><source src="sounds/notify.mp3" type="audio/mpeg"></audio>').appendTo('body');
+    })();
+
+    socket.on('newMessage', function(msg){
+      addNewMessage(msg);
     });
 
   
