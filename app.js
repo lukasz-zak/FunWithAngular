@@ -7,7 +7,8 @@ var http    = require('http'),
     io = require('socket.io').listen(server),
     passport = require('passport'),
     LocalStrategy = require('passport-local').Strategy,
-    auth = require('./modules/auth.js');
+    auth = require('./modules/auth.js'),
+    cleaningInterval = undefined;
 
 
 app.configure(function() {
@@ -30,8 +31,11 @@ app.configure(function() {
 
 
 app.get('/auth', function(req, res, next) {
-      if (req.isAuthenticated()) { return next(); }
-      else res.json({'isAuthenticated' : false});
+    clearInterval(cleaningInterval);
+    cleaningInterval = setInterval(cleanUsersList, 30000);
+
+    if (req.isAuthenticated()) { return next(); }
+    else res.json({'isAuthenticated' : false});
   }, function(req, res){
     console.log('isAuthenticated');
     res.json({'isAuthenticated' : true, 'user' : req.user});
@@ -215,6 +219,6 @@ function cleanUsersList () {
     }
 }
 
-setInterval(cleanUsersList, 30000);
+cleaningInterval = setInterval(cleanUsersList, 30000);
 
 server.listen(process.env.PORT || 9000);
