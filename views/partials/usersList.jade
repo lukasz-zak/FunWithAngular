@@ -4,4 +4,7 @@ nav#usersList
       | Total users:&nbsp;
       a.badge.badge-success {{usersAmount}}
     span.user(id="user-{{user.userName}}", ng-repeat='user in usersList')
+      i.icon-chevron-right {{user.userName}}
+      button.hide.btn.btn-mini(ng-click='openPrvWindow($event)')
+        i.icon-comment
 

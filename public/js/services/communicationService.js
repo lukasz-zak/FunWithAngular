@@ -53,12 +53,19 @@ angular.module('FunWithAngular.services')
       isAuthenticated : function(destPath){
         var defer = $q.defer();
         var user;
+
         $http.get('/auth').success(function(data, status){
           if(data.isAuthenticated === true && destPath === '/chat'){
-          	console.log("data: ", data);
-          	user = data.user;
-            defer.resolve(data)
-            socket.emit('updateSocketID', data.user);
+
+            socket.emit('fetchUserData', data.user, function (response) {
+              if(response){
+                socket.emit('updateSocketID', data.user, function (response) {
+                  if(response){
+                    defer.resolve(data);
+                  }
+                });
+              }
+            });
           } else if(data.isAuthenticated === true && destPath === '/'){
             defer.reject(data)
             $location.path('/chat');
@@ -77,12 +84,17 @@ angular.module('FunWithAngular.services')
       },
 
  			logoutUser : function () {
+        var defer = $q.defer();
+
         $http.get('/logout').success(function(data, status){
           if(data.removed){
             newJoiner = null;
             usersList = [];
+            defer.resolve();
           }
         });
+
+        return defer.promise;
  			},
 
  			getUsersAmount: function(){
@@ -110,10 +122,6 @@ angular.module('FunWithAngular.services')
  			setMyUsrName: function (name) {
  				console.log('setUsrName' + name)
  				myUsrName = name;
- 			},
-
- 			fetchUserData: function(userData){
- 				socket.emit('fetchUserData', userData);
  			},
 
       sendMessage: function (msgObj) {

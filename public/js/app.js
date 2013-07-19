@@ -6,14 +6,14 @@ angular.module('FunWithAngular.directives', []);
 
 angular.module('FunWithAngular', ['ui', 'LocalStorageModule', 'FunWithAngular.services', 'FunWithAngular.directives' ,'ui.bootstrap'])
   .config(function ($routeProvider, $locationProvider) {
-      
+
     var authResolver = function(SocketConn, $location, $rootScope){
       var auth = SocketConn.isAuthenticated($location.path());
       auth.promise.then(function(data){
-        $rootScope.me = data.user;
-        SocketConn.fetchUserData(data.user);
-        return auth.promise;
-      })
+        $rootScope.me = data.user;        
+      });
+
+      return auth.promise;
     }
 
     $routeProvider
@@ -39,6 +39,7 @@ angular.module('FunWithAngular', ['ui', 'LocalStorageModule', 'FunWithAngular.se
         redirectTo: '/error'
       });
       $locationProvider.html5Mode(false);
-  }).run(function($rootScope, $http, $location, SocketConn, localStorageService){
+
+  }).run(function(){
     console.log('AppRun!');
   });

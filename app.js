@@ -8,7 +8,8 @@ var http    = require('http'),
     passport = require('passport'),
     LocalStrategy = require('passport-local').Strategy,
     auth = require('./modules/auth.js'),
-    cleaningInterval = undefined;
+    cleaningInterval = undefined,
+    timeForCleaningInterval = 1000;
 
 
 app.configure(function() {
@@ -31,9 +32,6 @@ app.configure(function() {
 
 
 app.get('/auth', function(req, res, next) {
-    clearInterval(cleaningInterval);
-    cleaningInterval = setInterval(cleanUsersList, 30000);
-
     if (req.isAuthenticated()) { return next(); }
     else res.json({'isAuthenticated' : false});
   }, function(req, res){
@@ -109,15 +107,19 @@ io.sockets.on('connection', function(socket) {
         socket.disconnect();
     })
 
-    socket.on('fetchUserData', function(data){
+    socket.on('fetchUserData', function(data, fn){
         if(data != null){
           emitInfoAboutNewUser(data.userName);
           emitUsersList();
+          fn(true);
+        }else{
+            fn(false);
         }
     })
 
-    socket.on('updateSocketID', function (user) {
+    socket.on('updateSocketID', function (user, fn) {
         usersDB.updateSocketID(user, socket.id);
+        fn(true);
     })
 
 
@@ -149,7 +151,8 @@ io.sockets.on('connection', function(socket) {
 
     socket.on('disconnect', function() {
         console.log('//userDisconnect')
-        //not implemented
+        clearInterval(cleaningInterval);
+        cleaningInterval = setInterval(cleanUsersList, timeForCleaningInterval);
     })
 })
 
@@ -195,6 +198,8 @@ function userLeft(uName) {
         "userName": uName,
         "amount": usersDB.getList().length
     });
+    clearInterval(cleaningInterval);
+    cleaningInterval = setInterval(cleanUsersList, timeForCleaningInterval);
 }
 
 function cleanUsersList () {
@@ -219,6 +224,6 @@ function cleanUsersList () {
     }
 }
 
-cleaningInterval = setInterval(cleanUsersList, 30000);
+cleaningInterval = setInterval(cleanUsersList, timeForCleaningInterval);
 
 server.listen(process.env.PORT || 9000);

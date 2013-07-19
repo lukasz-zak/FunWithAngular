@@ -9,7 +9,7 @@ br
         h1 Hello!
       h5 Type your nick below and click 'LogIn'
     .control-group
-      input(type='text', ng-change='toggleLoginBtn(loginInput)', ng-model='loginInput', required='required')
+      input(type='text', enable-notif='true', ng-change='toggleLoginBtn(loginInput)', ng-model='loginInput', required='required')
     .control-group
       button.btn.btn-large.btn-info(type='submit', ng-disabled='myForm.$invalid', ng:class='loginFormValid')
         | LogIn

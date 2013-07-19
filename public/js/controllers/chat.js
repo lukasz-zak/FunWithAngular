@@ -7,13 +7,12 @@ angular.module('FunWithAngular').controller('ChatCtrl',
   $scope.usersAmount = 0;
   $scope.usersListPartial = '/partials/usersList';
 
-
   $scope.messages = Messages.getMessages();
+  $scope.usersList = SocketConn.getUsers();
 
   $scope.logout = function(e){
   	e.preventDefault();
-  	console.log('logout');
-  	$location.url('/logout');
+  	$location.path('/logout');
   }
 
   $scope.$watch('socketConnService.getNewJoiner()', function(newVal, oldVal){
@@ -37,7 +36,7 @@ angular.module('FunWithAngular').controller('ChatCtrl',
   	console.group('watchingGetUsers');
   	console.log(newVal, oldVal);
 		if(newVal !== undefined){
-			console.log("watching usersList: " + newVal);
+			console.log("watching usersList", newVal);
 			$scope.usersList = newVal;
 			$scope.usersAmount = newVal.length;
 		}
@@ -184,6 +183,8 @@ angular.module('FunWithAngular').controller('ChatCtrl',
 }).controller('chatLogoutCtrl',
 	function($location, $scope, SocketConn){
 
-	SocketConn.logoutUser();
-	$location.path('/');
+  var logout = SocketConn.logoutUser();
+	logout.then(function () {
+    $location.path('/');
+  })
 })
